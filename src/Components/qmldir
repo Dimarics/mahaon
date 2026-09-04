@@ -1,0 +1,29 @@
+module Components
+singleton Style 1.0 Style.qml
+AppWidget 1.0 AppWidget.qml
+BorderRect 1.0 BorderRect.qml
+Button 1.0 Button.qml
+ButtonJoystick 1.0 ButtonJoystick.qml
+ComboBox 1.0 ComboBox.qml
+CustomWindow 1.0 CustomWindow.qml
+Flickable 1.0 Flickable.qml
+HobotDevice 1.0 HobotDevice.qml
+Joint 1.0 Joint.qml
+Joystick 1.0 Joystick.qml
+JsonSettings 1.0 JsonSettings.qml
+ModeButton 1.0 ModeButton.qml
+NumberField 1.0 NumberField.qml
+RadioButton 1.0 RadioButton.qml
+RangeSlider 1.0 RangeSlider.qml
+RangeVolume 1.0 RangeVolume.qml
+ScrollArea 1.0 ScrollArea.qml
+ScrollBar 1.0 ScrollBar.qml
+Slider 1.0 Slider.qml
+SplitView 1.0 SplitView.qml
+TabBox 1.0 TabBox.qml
+Text 1.0 Text.qml
+TextEdit 1.0 TextEdit.qml
+TextEditScroller 1.0 TextEditScroller.qml
+ToolBar 1.0 ToolBar.qml
+ToolTip 1.0 ToolTip.qml
+Volume 1.0 Volume.qml

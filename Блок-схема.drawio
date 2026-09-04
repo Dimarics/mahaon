@@ -1,0 +1,105 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1">
+  <diagram name="Страница — 1" id="WiHrvfZttncR4C2MHSSG">
+    <mxGraphModel dx="2083" dy="1394" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-35" value="&lt;p style=&quot;text-align: right; margin-top: 10px; margin-bottom: 0px; padding-top: 0px;&quot;&gt;Датчики&lt;/p&gt;&lt;p style=&quot;text-align: right; margin-top: 0px; margin-bottom: 0px; padding-top: 0px;&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;arcSize=10;labelBackgroundColor=none;fillColor=none;dashed=1;imageVerticalAlign=middle;container=1;direction=east;collapsible=1;recursiveResize=0;verticalAlign=top;fontSize=20;fontStyle=1;dashPattern=1 1;" parent="1" vertex="1">
+          <mxGeometry x="70" y="64" width="250" height="700" as="geometry">
+            <mxRectangle x="-320" y="63" width="120" height="70" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-23" value="&lt;p style=&quot;margin-top: 0px; margin-bottom: 0px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;Лидар&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-35" vertex="1">
+          <mxGeometry x="20" y="246" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-28" value="&lt;p style=&quot;margin-top: 0px; margin-bottom: 0px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;Компасс&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-35" vertex="1">
+          <mxGeometry x="20" y="356" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-29" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;IMU&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 4px 10px 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 11px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;Inertial Measurement Unit (инерциальный измерительный блок)&lt;/span&gt;&lt;/h3&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;включает в себя гироскопы и акселерометры&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-35" vertex="1">
+          <mxGeometry x="20" y="90" width="210" height="133.88" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-31" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;b&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;UWB&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;система локального позиционирования&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;part=0;autosize=0;resizable=1;" parent="CEIDgXLIreTvUFoVgnA8-35" vertex="1">
+          <mxGeometry x="20" y="576" width="210" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-32" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;b style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;GPS (RTK)&lt;/b&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;система глобального позиционирования&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-35" vertex="1">
+          <mxGeometry x="20" y="456" width="210" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-16" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;b&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;GTSAM&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 12px; font-weight: normal; white-space-collapse: preserve;&quot;&gt;библиотека, реализующая метод оптимизации графов в робототехнике и компьютерном зрении&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="840" y="420" width="210" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-19" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b style=&quot;&quot;&gt;MRPT&lt;/b&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 4px 10px 10px; padding-top: 0px;&quot;&gt;&lt;font style=&quot;font-weight: normal;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;Mobile Robot &lt;/span&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;Programming Toolkit&lt;/span&gt;&lt;/font&gt;&lt;span style=&quot;white-space-collapse: preserve; font-size: 11px;&quot;&gt;&lt;/span&gt;&lt;/font&gt;&lt;/h3&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-weight: 400; white-space-collapse: preserve;&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;набор инструментов для управления мобильными платформами&lt;/font&gt;&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;arcSize=10;labelBackgroundColor=none;fillColor=none;verticalAlign=top;dashed=1;dashPattern=1 1;container=1;" parent="1" vertex="1">
+          <mxGeometry x="460" y="63" width="250" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-26" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;mrpt-obs&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;модуль для приёма показаний с датчиков и перевод их в удобоваримый для программы вид&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-19" vertex="1">
+          <mxGeometry x="20.003333333333337" y="140" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-24" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;mrpt-nav&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;модуль автономной навигации мобильных роботов&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;container=1;verticalAlign=top;recursiveResize=0;" parent="CEIDgXLIreTvUFoVgnA8-19" vertex="1">
+          <mxGeometry x="19.99666666666667" y="306" width="210" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-72" value="&lt;p style=&quot;margin-top: 0px; margin-bottom: 0px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Планировщик маршрута&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-24" vertex="1">
+          <mxGeometry x="11.46" y="100" width="188.54" height="46.87" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-73" value="&lt;p style=&quot;margin-top: 0px; margin-bottom: 0px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Корректировка в реальном времени&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-24" vertex="1">
+          <mxGeometry x="11.46" y="158.63" width="188.54" height="46.87" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-25" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;mrpt-kinematics&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;модуль, отвечающий за математическое описание движения робота&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-19" vertex="1">
+          <mxGeometry x="20" y="566" width="210" height="114" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-66" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;endSize=6;startSize=6;" parent="CEIDgXLIreTvUFoVgnA8-19" source="CEIDgXLIreTvUFoVgnA8-24" target="CEIDgXLIreTvUFoVgnA8-25" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-30" y="716" as="sourcePoint" />
+            <mxPoint x="100" y="466" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-20" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;MOLA&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 4px 10px 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 11px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;Modular Optimization framework for Localization and mApping&lt;/span&gt;&lt;/h3&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-weight: 400; white-space-collapse: preserve;&quot;&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;построение карт&lt;/font&gt;&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;dashed=1;dashPattern=1 2;fillColor=none;verticalAlign=top;container=1;recursiveResize=0;" parent="1" vertex="1">
+          <mxGeometry x="820" y="64" width="250" height="286" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-22" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;b&gt;&lt;font style=&quot;font-size: 16px;&quot;&gt;mola_mapper_2d&lt;/font&gt;&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;модуль, отвечающий за одновременную локализацию и построение карты&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" parent="CEIDgXLIreTvUFoVgnA8-20" vertex="1">
+          <mxGeometry x="19.99666666666667" y="155" width="210" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-67" value="" style="endArrow=classic;html=1;rounded=0;fillColor=default;strokeWidth=3;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endSize=6;startSize=6;exitX=0.999;exitY=0.3;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="CEIDgXLIreTvUFoVgnA8-35" target="CEIDgXLIreTvUFoVgnA8-26" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="300" as="sourcePoint" />
+            <mxPoint x="474.58333333333326" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-68" value="" style="endArrow=classic;html=1;rounded=0;fillColor=default;strokeWidth=3;endSize=6;startSize=6;" parent="1" source="CEIDgXLIreTvUFoVgnA8-26" target="CEIDgXLIreTvUFoVgnA8-22" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="51" y="291" as="sourcePoint" />
+            <mxPoint x="420" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-78" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="CEIDgXLIreTvUFoVgnA8-20" target="CEIDgXLIreTvUFoVgnA8-20" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-79" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;endSize=6;startSize=6;entryX=0.25;entryY=0;entryDx=0;entryDy=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" parent="1" source="CEIDgXLIreTvUFoVgnA8-22" target="CEIDgXLIreTvUFoVgnA8-16" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="840" y="380" as="sourcePoint" />
+            <mxPoint x="605" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-80" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;endSize=6;startSize=6;entryX=0.75;entryY=1;entryDx=0;entryDy=0;exitX=0.75;exitY=0;exitDx=0;exitDy=0;" parent="1" source="CEIDgXLIreTvUFoVgnA8-16" target="CEIDgXLIreTvUFoVgnA8-22" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="852" y="339" as="sourcePoint" />
+            <mxPoint x="853" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-83" value="&lt;font style=&quot;font-size: 15px;&quot;&gt;&lt;b&gt;карта&lt;/b&gt;&lt;/font&gt;" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;endSize=6;startSize=6;labelPosition=right;verticalLabelPosition=bottom;align=left;verticalAlign=top;" parent="1" source="CEIDgXLIreTvUFoVgnA8-22" target="CEIDgXLIreTvUFoVgnA8-24" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="852" y="339" as="sourcePoint" />
+            <mxPoint x="852" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-86" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;контроллер управления&lt;/b&gt;&lt;/font&gt;" style="rhombus;whiteSpace=wrap;html=1;rounded=1;strokeWidth=1.5;arcSize=30;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="820" y="616" width="250" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-87" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;" parent="1" source="CEIDgXLIreTvUFoVgnA8-25" target="CEIDgXLIreTvUFoVgnA8-86" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-88" value="оптимизация" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="915" y="370" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

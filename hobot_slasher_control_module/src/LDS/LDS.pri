@@ -1,0 +1,17 @@
+INCLUDEPATH += $$PWD
+
+HEADERS += \
+    $$PWD/LDS.h \
+    $$PWD/LDS_YDLIDAR_X4.h \
+    $$PWD/LDS_YDLIDAR_X2_X2L.h \
+    $$PWD/LDS_YDLIDAR_X3.h \
+    $$PWD/LDS_YDLIDAR_X3_PRO.h
+
+SOURCES += \
+    $$PWD/LDS.cpp \
+    $$PWD/LDS_YDLIDAR_X4.cpp \
+    $$PWD/LDS_YDLIDAR_X2_X2L.cpp \
+    $$PWD/LDS_YDLIDAR_X3.cpp \
+    $$PWD/LDS_YDLIDAR_X3_PRO.cpp
+
+

@@ -1,0 +1,21 @@
+[connection]
+id=Hotspot
+uuid=cefc5c02-0631-44dd-a21e-94e35de0cebe
+type=wifi
+autoconnect-priority=100
+interface-name=wlan0
+domain=hobot_sl.local
+
+[wifi]
+mode=ap
+ssid=Hobot SL
+
+[ipv4]
+address1=192.168.0.0/24
+method=shared
+
+[ipv6]
+addr-gen-mode=default
+method=auto
+
+[proxy]

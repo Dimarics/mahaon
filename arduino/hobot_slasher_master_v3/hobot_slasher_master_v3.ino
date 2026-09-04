@@ -1,0 +1,181 @@
+#include "hobot_slasher_protocol.h"
+#include "wit_hwt.h"
+
+const float angle_kp = 0.36f;
+const float speed_kp = 60.f;
+const uint16_t allowance = 20;
+
+HobotSlasherProtocol hsp;
+WitHWT wit_hwt;
+bool dir = 0;
+int16_t start_yaw = 0;
+int16_t target_yaw = 0;
+uint32_t dir_timer = millis();
+
+enum AUTOPILOT_STATE {
+  AUTOPILOT_DISABLED,
+  AUTOPILOT_MOVE_FORWARD,
+  AUTOPILOT_MOVE_LEFT,
+  AUTOPILOT_MOVE_RIGHT,
+};
+AUTOPILOT_STATE autopilot_state = AUTOPILOT_DISABLED;
+
+// функция для обработки значений джойстиков
+void moveParamsCallback(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y) {
+  Serial.print("stick_1_x: ");
+  Serial.print(stick_1_x);
+  Serial.print(" stick_1_y: ");
+  Serial.print(stick_1_y);
+  Serial.print(" stick_2_x: ");
+  Serial.print(stick_2_x);
+  Serial.print(" stick_2_y: ");
+  Serial.println(stick_2_y);
+}
+
+void autopilotEnableCallback(bool enabled) {
+  if (enabled) {
+    autopilot_state = AUTOPILOT_MOVE_FORWARD;
+    start_yaw = wit_hwt.yaw();
+    target_yaw = start_yaw;
+    dir_timer = millis();
+    Serial.println("autopilot enabled");
+  } else {
+    autopilot_state = AUTOPILOT_DISABLED;
+    Serial.println("autopilot disabled");
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+
+  Serial2.begin(9600);
+  hsp.setSerial(&Serial2);  // установить порт для работы с протоколом
+
+  // установить функцию, которая будет вызываться при получении команды
+  hsp.setMoveParamsCallback(moveParamsCallback);
+  hsp.setAutopilotEnableCallback(autopilotEnableCallback);
+
+  wit_hwt.setup();
+
+  wit_hwt.poll();
+  delay(100);
+  wit_hwt.poll();
+  start_yaw = wit_hwt.yaw();
+  target_yaw = start_yaw;
+  dir_timer = millis();
+}
+
+void loop() {
+  static uint32_t tick_timer = millis();
+  if (millis() - tick_timer >= 100) {
+    tick_timer = millis();
+
+    hsp.poll();
+    wit_hwt.poll();
+
+    if (autopilot_state == AUTOPILOT_MOVE_FORWARD) {
+      int16_t stick_2_x = 500 + float(deltaAngle(wit_hwt.yaw(), target_yaw)) * angle_kp;
+      if (stick_2_x < 0) stick_2_x = 0;
+      if (stick_2_x > 1000) stick_2_x = 1000;
+
+      setMoveParams(500, 250, stick_2_x, 500);
+
+      Serial.print("yaw: ");
+      Serial.print(wit_hwt.yaw());
+      Serial.print("; target yaw: ");
+      Serial.print(target_yaw);
+      Serial.print("; stick_2_x: ");
+      Serial.print(stick_2_x);
+      Serial.println("; forward");
+
+      if (millis() - dir_timer >= 10000) {
+        setMoveParams(500, 0, 500, 500);
+        delay(1000);
+        dir = !dir;
+        if (dir) {
+          autopilot_state = AUTOPILOT_MOVE_LEFT;
+          target_yaw = normalizeAngle(start_yaw + 180);
+        } else {
+          target_yaw = start_yaw;
+          autopilot_state = AUTOPILOT_MOVE_RIGHT;
+        }
+      }
+    } else if (autopilot_state == AUTOPILOT_MOVE_LEFT) {
+      int16_t target_yaw_speed = 20;
+      int16_t stick_2_x = 500 - (target_yaw_speed - wit_hwt.gyro()) * speed_kp;
+      if (stick_2_x < 0) stick_2_x = 0;
+      if (stick_2_x > 1000) stick_2_x = 1000;
+      setMoveParams(500, 0, stick_2_x, 500);
+      // setMoveParams(500, 0, 350, 500);
+      if (abs(deltaAngle(wit_hwt.yaw(), target_yaw)) <= allowance) {
+        autopilot_state = AUTOPILOT_MOVE_FORWARD;
+        dir_timer = millis();
+      }
+      Serial.print("yaw: ");
+      Serial.print(wit_hwt.yaw());
+      Serial.print("; target yaw: ");
+      Serial.print(target_yaw);
+      Serial.print("; speed: ");
+      Serial.print(wit_hwt.gyro());
+      Serial.print("; stick_2_x: ");
+      Serial.print(stick_2_x);
+      Serial.println("; left");
+    } else if (autopilot_state == AUTOPILOT_MOVE_RIGHT) {
+      int16_t target_yaw_speed = -20;
+      int16_t stick_2_x = 500 - (target_yaw_speed - wit_hwt.gyro()) * speed_kp;
+      if (stick_2_x < 0) stick_2_x = 0;
+      if (stick_2_x > 1000) stick_2_x = 1000;
+      setMoveParams(500, 0, stick_2_x, 500);
+      // setMoveParams(500, 0, 650, 500);
+      if (abs(deltaAngle(wit_hwt.yaw(), target_yaw)) <= allowance) {
+        autopilot_state = AUTOPILOT_MOVE_FORWARD;
+        dir_timer = millis();
+      }
+      Serial.print("yaw: ");
+      Serial.print(wit_hwt.yaw());
+      Serial.print("; target yaw: ");
+      Serial.print(target_yaw);
+      Serial.print("; speed: ");
+      Serial.print(wit_hwt.gyro());
+      Serial.print("; stick_2_x: ");
+      Serial.print(stick_2_x);
+      Serial.println("; right");
+    }
+  }
+}
+
+int16_t normalizeAngle(int16_t yaw) {
+  if (yaw > 180) {
+    return yaw - 360;
+  } else if (yaw <= -180) {
+    return yaw + 360;
+  }
+  return yaw;
+}
+
+int16_t deltaAngle(int16_t yaw, int16_t target_yaw) {
+  int16_t delta = normalizeAngle(yaw - target_yaw);
+  return delta;
+}
+
+void setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y) {
+  // Serial.print("yaw: ");
+  // Serial.print(wit_hwt.yaw());
+  // Serial.print("; target yaw: ");
+  // Serial.print(target_yaw);
+  // Serial.print("; delta: ");
+  // Serial.print(delta);
+  // Serial.print("; stick_2_x: ");
+  // Serial.println(stick_2_x);
+  uint8_t data[8]{
+    uint8_t(stick_1_x >> 8),
+    uint8_t(stick_1_x),
+    uint8_t(stick_1_y >> 8),
+    uint8_t(stick_1_y),
+    uint8_t(stick_2_x >> 8),
+    uint8_t(stick_2_x),
+    uint8_t(stick_2_y >> 8),
+    uint8_t(stick_2_y),
+  };
+  hsp.sendPacket(HobotSlasherProtocol::MSG_ID_SET_MOVE_PARAMS, data, 8);
+}
