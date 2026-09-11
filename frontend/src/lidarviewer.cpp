@@ -1,4 +1,6 @@
 #include "lidarviewer.h"
+#include "appglobal.h"
+#include "websocketinterface.h"
 #include <QPainter>
 #include <QTimer>
 #include <QQuickWindow>
@@ -38,8 +40,8 @@ LidarViewer::LidarViewer(QQuickItem *parent)
 void LidarViewer::setZoom(qreal zoom) {
     if (m_zoom == zoom) return;
     m_zoom = zoom;
-    update();
     emit zoomChanged();
+    update();
 }
 
 void LidarViewer::paint(QPainter *painter)
@@ -88,4 +90,13 @@ void LidarViewer::paint(QPainter *painter)
     QPolygonF arrow{QPointF(0.0, 0.0), QPointF(24.0, 10.0), QPointF(0.0, 20.0), QPointF(6.8, 10.0)};
     arrow.translate(-arrow.boundingRect().width() / 2.0, -arrow.boundingRect().height() / 2.0);
     painter->drawPolygon(arrow);
+}
+
+void LidarViewer::mousePressEvent(QMouseEvent *event) {
+    const qreal k = qreal(width() > height() ? height() : width()) / 8.4 / 2.0 * m_zoom;
+    const qreal x = -(event->pos().y() - height() / 2.0) / k;
+    const qreal y = -(event->pos().x() - width() / 2.0) / k;
+    // qDebug() << x << y << std::atan2(y, x) / M_PI * 180.0;
+    auto interface = qobject_cast<WebSocketInterface*>(AppGlobal::instance()->interface());
+    interface->setWaypoint(x, y, std::atan2(y, x), true);
 }

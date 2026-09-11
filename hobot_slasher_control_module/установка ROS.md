@@ -40,12 +40,25 @@ cd .. -->
 https://github.com/ros2-gbp/geographic_info-release/archive/refs/tags/rpm/ros-jazzy-geographic-msgs-1.0.6-2_9.zip
 colcon build --packages-select geographic_msgs
 
+# behavour_tree
+sudo apt install libzmq3-dev
+git clone https://github.com/BehaviorTree/BehaviorTree.CPP.git
+cd behavour_tree
+git branch 4.10.0
+colcon build --packages-select behaviortree_cpp --cmake-args -DBTCPP_GROOT_INTERFACE=OFF -DCMAKE_PREFIX_PATH="/opt/ros/jazzy/include"
+убрать проверки версии ament_index_cpp
+
 # ros-navigation
-sudo apt install ros-jazzy-backward-ros
+sudo apt install ros-jazzy-backward-ros ros-jazzy-test-msgs ros-jazzy-angles libgraphicsmagick++1-dev libgraphicsmagick1-dev ros-jazzy-diagnostic-updater ros-jazzy-ament-cmake-google-benchmark
 git clone https://github.com/ros-navigation/navigation2.git
 cd navigation2
 git branch jazzy
+cd ../..
+colcon build --packages-select nav2_ros_common --cmake-args DCMAKE_PREFIX_PATH=/opt/ros/jazzy/lib
 colcon build --symlink-install
+<!-- при ошибках в nav2_ros_common исправить в /test/CMakeList.txt:
+заменить target_link_libraries на ament_target_dependencies и убрать <имя>:: -->
+при ошибках в пакетах поменять в cmake <имя библиотеки>::<имя библиотеки> на ${<имя библиотеки>_TARGETS} ${_TARGETS}
 
 # laser_scan_matcher
 <!-- для ros1:
@@ -111,6 +124,11 @@ colcon build --symlink-install
 5. ros2 launch slam_toolbox online_sync_launch.py
 
 # команды:
+colcon build --packages-select <имя пакета>
+colcon build --symlink-install - собрать всё
 ros2 topic list - список топиков (-t с типом -v подробно)
 ros2 topic echo --once /имя_топика - прочитать топик разово
 ros2 topic hz /имя_топика - частота
+ros2 topic echo /odom | grep -E "position|orientation|x|y|z|w|twist"
+ros2 topic echo /odom --once --field pose
+ros2 topic echo /map --once > /home/mes/map_data.txt

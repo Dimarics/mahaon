@@ -207,7 +207,8 @@ Mapper::Mapper(QObject *parent)
             // }
             QByteArray data;
             QDataStream stream(&data, QIODevice::WriteOnly);
-            stream << m_gridMap->getSizeX() << m_gridMap->getSizeY();
+            stream << m_gridMap->getSizeX() << m_gridMap->getSizeY()
+                   << m_gridMap->getXMin() << m_gridMap->getYMin() << m_gridMap->getResolution();
             for (auto &cell : m_gridMap->getRawMap()) {
                 stream << m_gridMap->l2p_255(cell);
             }
@@ -299,7 +300,7 @@ void Mapper::processScan(const mrpt::obs::CObservation2DRangeScan::Ptr &obs) {
         // const auto& metricMap = m_mapBuilderICP.getCurrentlyBuiltMetricMap();
         // m_gridMap = metricMap.mapByClass<mrpt::maps::COccupancyGridMap2D>();
 
-        // // Получение текущей оценки положения робота
+        // Получение текущей оценки положения робота
         mrpt::poses::CPose3DPDF::Ptr posePDF = m_mapBuilderICP.getCurrentPoseEstimation();
         if (posePDF) {
             mrpt::poses::CPose3D currentPose;
@@ -424,29 +425,29 @@ void Mapper::processScan(const mrpt::obs::CObservation2DRangeScan::Ptr &obs) {
         // m_graphSlamEngine->execGraphSlamStep(obs_ptr, measurement_count);
         // measurement_count++;
     } else if (m_currentObs && m_gridMap) {
-        mrpt::slam::CICP icp;
-        icp.options.maxIterations = m_mapBuilderICP.ICP_params.maxIterations;
-        icp.options.thresholdDist = m_mapBuilderICP.ICP_params.thresholdDist;
-        icp.options.thresholdAng = m_mapBuilderICP.ICP_params.thresholdAng;
-        icp.options.ICP_algorithm = mrpt::slam::icpClassic;
-        icp.options.ALFA = m_mapBuilderICP.ICP_params.ALFA;
+        // mrpt::slam::CICP icp;
+        // icp.options.maxIterations = m_mapBuilderICP.ICP_params.maxIterations;
+        // icp.options.thresholdDist = m_mapBuilderICP.ICP_params.thresholdDist;
+        // icp.options.thresholdAng = m_mapBuilderICP.ICP_params.thresholdAng;
+        // icp.options.ICP_algorithm = mrpt::slam::icpClassic;
+        // icp.options.ALFA = m_mapBuilderICP.ICP_params.ALFA;
 
-        mrpt::maps::CSimplePointsMap map1, map2;
-        map1.insertObservationPtr(obs);
-        map2.insertObservationPtr(m_currentObs);
-        mrpt::math::TPose2D mclPose = m_MCL.getMostLikelyParticle();
-        mrpt::poses::CPose2D initialPose(mclPose.x, mclPose.y, mclPose.phi);
-        mrpt::poses::CPosePDF::Ptr pdf = icp.AlignPDF(
-                    &map1, &map2,
-                    mrpt::poses::CPosePDFGaussian(initialPose)
-                    );
-        mrpt::poses::CPose2D deltaPose(0, 0, 0);
-        if (pdf) {
-            deltaPose = pdf->getMeanVal();
-            // qDebug() << "ICP delta: dx=" << deltaPose.x()
-            //          << " dy=" << deltaPose.y()
-            //          << " dphi=" << mrpt::RAD2DEG(deltaPose.phi());
-        }
+        // mrpt::maps::CSimplePointsMap map1, map2;
+        // map1.insertObservationPtr(obs);
+        // map2.insertObservationPtr(m_currentObs);
+        // mrpt::math::TPose2D mclPose = m_MCL.getMostLikelyParticle();
+        // mrpt::poses::CPose2D initialPose(mclPose.x, mclPose.y, mclPose.phi);
+        // mrpt::poses::CPosePDF::Ptr pdf = icp.AlignPDF(
+        //             &map1, &map2,
+        //             mrpt::poses::CPosePDFGaussian(initialPose)
+        //             );
+        // mrpt::poses::CPose2D deltaPose(0, 0, 0);
+        // if (pdf) {
+        //     deltaPose = pdf->getMeanVal();
+        //     // qDebug() << "ICP delta: dx=" << deltaPose.x()
+        //     //          << " dy=" << deltaPose.y()
+        //     //          << " dphi=" << mrpt::RAD2DEG(deltaPose.phi());
+        // }
         /*
         mrpt::obs::CActionRobotMovement2D odomAction;
 

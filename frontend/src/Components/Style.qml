@@ -18,7 +18,7 @@ QtObject {
     property color color_6: "#50A0F0"
     */
 
-    property int textSize: 10
+    property int textSize: 12
     property font font
     font.family: "Segoe UI"
     property color textColor: "white"

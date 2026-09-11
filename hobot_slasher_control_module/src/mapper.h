@@ -36,7 +36,7 @@ private:
     // mrpt::maps::TSetOfMetricMapInitializers mapInit;
     mrpt::slam::CMetricMapBuilderICP m_mapBuilderICP;
     // mrpt::slam::CMetricMapBuilderRBPF  m_mapBuilderRBPF;
-    mrpt::slam::CMonteCarloLocalization2D m_MCL;
+    // mrpt::slam::CMonteCarloLocalization2D m_MCL;
     mrpt::maps::COccupancyGridMap2D::Ptr m_gridMap;
 
     // mrpt::graphslam::CGraphSlamEngine<mrpt::graphs::CNetworkOfPoses2DInf> *m_graphSlamEngine;

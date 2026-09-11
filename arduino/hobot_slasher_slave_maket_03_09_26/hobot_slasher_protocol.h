@@ -4,20 +4,23 @@ class HobotSlasherProtocol : public HDP {
 public:
   enum MSG_ID : uint8_t {
     MSG_ID_COMMAND_ACCEPTED = 1,
-    MSG_ID_SET_MOVE_PARAMS,
-    MSG_ID_SET_MOTOR_SPEEDS,
-    MSG_ID_SET_SPEED,
+
     MSG_ID_YAW_CHANGED,
     MSG_ID_LOCAL_POSITION_CHANGED,
     MSG_ID_GLOBAL_POSITION_CHANGED,
     MSG_ID_SCAN_POINTS_CHANGED,
-    MSG_ID_MAP_CELL_POSITION_CHANGED,
+    MSG_ID_VELOCITIES_CHANGED,
+
+    MSG_ID_SET_MOVE_PARAMS,
+    MSG_ID_SET_MOTOR_SPEEDS,
+    MSG_ID_SET_SPEED,
+    MSG_ID_SET_WAYPOINT,
+    MSG_ID_SET_WAYPOINTS,
 
     MSG_ID_AUTOPILOT_ENABLE,
     MSG_ID_AUTOPILOT_DISABLE,
     MSG_ID_START_BUILDING_MAP,
     MSG_ID_FINISH_BUILDING_MAP,
-
     MSG_ID_MOWING_ENABLE,
     MSG_ID_MOWING_DISABLE,
   };
@@ -56,8 +59,8 @@ public:
           break;
         }
       case MSG_ID_SET_MOTOR_SPEEDS:
-          m_motorSpeedsCallback(data[0], data[1]);
-          break;
+        m_motorSpeedsCallback(data[0], data[1]);
+        break;
     }
   }
 

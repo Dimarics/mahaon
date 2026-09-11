@@ -4,6 +4,7 @@
 
 Lidar::Lidar(QObject *parent) : QObject(parent), m_scan(nullptr)
 {
+    return;
     //ydlidar::os_init();
 
     // инициализация SDK и LiDAR
@@ -159,7 +160,7 @@ void Lidar::loadScan() {
 
     obs->resizeScan(scan->size);
     obs->setScanHasIntensity(false);
-    obs->rightToLeft = true;
+    obs->rightToLeft = false;
     obs->maxRange = m_maxRange;
     obs->aperture = 2.0 * M_PI;
     // Положение сенсора на роботе
@@ -183,7 +184,8 @@ void Lidar::loadScan() {
 
     // интерполяция
     for (int i = 0; i < scan->size; ++i) {
-        auto [range, valid] = interpolateValue(scan->points, obs->getScanAngle(i));
+        // qDebug() << obs->getScanAngle(i) << scan->points[i].angle;
+        auto [range, valid] = interpolateValue(scan->points, -obs->getScanAngle(i));
         obs->setScanRange(i, range);
         obs->setScanRangeValidity(i, valid);
     }
@@ -214,7 +216,6 @@ void Lidar::loadScan() {
     pointCloud->setSensorPose(mrpt::poses::CPose3D(0, 0, 0, 0, 0, 0));
 
     emit pointCloudChanged(pointCloud);
-
 }
 
 std::pair<float, bool> Lidar::interpolateValue(const std::vector<LaserPoint> &data, float targetAngle) {

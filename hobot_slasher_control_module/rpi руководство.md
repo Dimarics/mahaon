@@ -6,9 +6,11 @@
 5. ros2 launch slam_toolbox online_sync_launch.py
 
 # команды ros:
+source ~/ros2_ws/install/setup.bash - загрузить окружение
 ros2 topic list - список топиков (-t с типом -v подробно)
 ros2 topic echo --once /имя_топика - прочитать топик разово
 ros2 topic hz /имя_топика - частота
+ros2 run nav2_map_server map_saver_cli -f ~/my_map --ros-args -p save_map_timeout:=10.0 - сохранить карту
 
 
 # Активация COM-порта
@@ -21,7 +23,11 @@ sudo chown root:root /etc/NetworkManager/system-connections/Hotspot.nmconnection
 sudo chmod 600 /etc/NetworkManager/system-connections/Hotspot.nmconnection
 sudo systemctl restart NetworkManager
 sudo nmcli connection reload
-sudo nmcli connection up Hotspot
+
+# управление подключением
+nmcli connection show - список сетей
+sudo nmcli connection up <имя сети>
+sudo nmcli connection up netplan-wlan0-Bitrace49
 
 # Автозапуск
 поместить файл launch_server.service в /etc/systemd/system

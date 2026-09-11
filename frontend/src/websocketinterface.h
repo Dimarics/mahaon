@@ -14,20 +14,23 @@ class WebSocketInterface : public QObject
 public:
     enum MSG_ID : uint8_t {
         MSG_ID_COMMAND_ACCEPTED = 1,
-        MSG_ID_SET_MOVE_PARAMS,
-        MSG_ID_SET_MOTOR_SPEEDS,
-        MSG_ID_SET_SPEED,
+
         MSG_ID_YAW_CHANGED,
         MSG_ID_LOCAL_POSITION_CHANGED,
         MSG_ID_GLOBAL_POSITION_CHANGED,
         MSG_ID_SCAN_POINTS_CHANGED,
-        MSG_ID_MAP_CELL_POSITION_CHANGED,
+        MSG_ID_VELOCITIES_CHANGED,
+
+        MSG_ID_SET_MOVE_PARAMS,
+        MSG_ID_SET_MOTOR_SPEEDS,
+        MSG_ID_SET_SPEED,
+        MSG_ID_SET_WAYPOINT,
+        MSG_ID_SET_WAYPOINTS,
 
         MSG_ID_AUTOPILOT_ENABLE,
         MSG_ID_AUTOPILOT_DISABLE,
         MSG_ID_START_BUILDING_MAP,
         MSG_ID_FINISH_BUILDING_MAP,
-
         MSG_ID_MOWING_ENABLE,
         MSG_ID_MOWING_DISABLE,
     };
@@ -47,6 +50,7 @@ public slots:
     Q_INVOKABLE void disconnectDevice();
     Q_INVOKABLE void setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y);
     Q_INVOKABLE void setMotorSpeeds(uint8_t left_motor_pwm, uint8_t right_motor_pwm);
+    Q_INVOKABLE void setWaypoint(float x, float y, float yaw, bool relative = false);
 
     Q_INVOKABLE void startBuildingMap();
     Q_INVOKABLE void finishBuildingMap();
@@ -61,7 +65,8 @@ signals:
     void yawChanged(float yaw);
     void localPositionChanged(float x, float y, float yaw);
     void globalPositionChanged(float latitude, float longitude, uint16_t altitude);
-    void mapCellPositionChanged(const QPoint &cellPos);
+    void velocitiesChanged(float vx, float vy, float v_yaw);
+    // void mapCellPositionChanged(const QPoint &cellPos);
 };
 
 #endif // WEBSOCKETINTERFACE_H

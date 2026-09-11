@@ -165,12 +165,63 @@ Window {
         contentWidth: width; contentHeight: control_panel_layout.height
         boundsMovement: Flickable.StopAtBounds
         boundsBehavior: Flickable.DragAndOvershootBounds
+        component CPText: C.Text {
+            horizontalAlignment: Qt.AlignRight
+            Layout.alignment: Qt.AlignVCenter
+        }
         ColumnLayout {
             id: control_panel_layout
             spacing: 12
             anchors.centerIn: parent
             //width: implicitWidth < control_panel.width ? control_panel.width : implicitWidth
             height: implicitHeight < control_panel.height ? control_panel.height : implicitHeight
+            GridLayout {
+                id: coordinates
+                rows: 3
+                flow: GridLayout.TopToBottom
+                rowSpacing: 16; columnSpacing: 16
+                Layout.alignment: Qt.AlignCenter
+                CPText { text: "X, м" }
+                CPText { text: "Y, м" }
+                CPText { text: "yaw, °" }
+                C.NumberField {
+                    id: coord_x
+                    decimals: 4
+                    min: -Infinity; max: Infinity;
+                    // onValueModified: App.device.protocol.setX(value / 1000)
+                }
+                C.NumberField {
+                    id: coord_y
+                    decimals: 4
+                    min: -Infinity; max: Infinity;
+                    // onValueModified: App.device.protocol.setY(value / 1000)
+                }
+                C.NumberField {
+                    id: yaw_field
+                    decimals: 4
+                    min: -Infinity; max: Infinity;
+                    // onValueModified: App.device.protocol.setZ(value / 1000)
+                }
+                CPText { text: "vx, м/с"; Layout.preferredWidth: yaw_label.width }
+                CPText { text: "vy, м/с"; Layout.preferredWidth: yaw_label.width }
+                CPText { id: yaw_label; text: "v yaw, °/с" }
+                C.NumberField {
+                    id: velocity_x
+                    decimals: 4
+                    min: -360; max: 360
+                }
+                C.NumberField {
+                    id: velocity_y
+                    decimals: 4
+                    min: -360; max: 360
+                }
+                C.NumberField {
+                    id: velocity_yaw
+                    decimals: 4
+                    min: -360; max: 360
+                    // onValueModified: App.interface.setYaw(value * Math.PI / 180)
+                }
+            }
             C.Joystick {
                 id: joystick_1
                 toX: 1000; toY: 1000
@@ -188,6 +239,7 @@ Window {
                 id: buttonJoystick
                 //leftText: "🡰"; rightText: "🡲"; topText: "🡱"; bottomText: "🡳"
                 leftText: "◄"; rightText: "►"; topText: "▲"; bottomText: "▼"
+                Layout.alignment: Qt.AlignHCenter
             }
         }
     }
@@ -254,6 +306,16 @@ Window {
     Connections {
         target: App.interface
         ignoreUnknownSignals: true
+        function onLocalPositionChanged(x: real, y: real, yaw: real) {
+            coord_x.setValue(x)
+            coord_y.setValue(y)
+            yaw_field.setValue(yaw * 180 / Math.PI)
+        }
+        function onVelocitiesChanged(vx: real, vy: real, v_yaw: real) {
+            velocity_x.setValue(vx)
+            velocity_y.setValue(vy)
+            velocity_yaw.setValue(v_yaw * 180 / Math.PI)
+        }
         function onGlobalPositionChanged(latitude: real, longitude: real, altitude: int) {
             marker.coordinate = QtPositioning.coordinate(latitude, longitude, altitude)
             // var coord = map_view.map.fromCoordinate(QtPositioning.coordinate(latitude, longitude, altitude))
@@ -275,11 +337,13 @@ Window {
             id: lidar_map_viewer
             width: parent.width; height: parent.height
             trajectoryVisible: trajectory_radio_button.checked
+            relative: true
             C.RadioButton {
                 id: trajectory_radio_button
                 text: "Показывать траекторию"
+                font.pointSize: 10
                 x: 15; y: 15
-                width: 200; height: 30
+                height: 30
                 checked: true
             }
             C.Button {
@@ -303,6 +367,18 @@ Window {
                 width: 150; height: 30
                 anchors.left: build_map_button.left; anchors.top: build_map_button.bottom; anchors.topMargin: 15
                 onClicked: lidar_map_viewer.clearTrajectory()
+            }
+            C.Button {
+                id: relative_button
+                text: "Сменить ориентацию"
+                width: 150; height: 30
+                anchors.left: trajectory_clear_button.left; anchors.top: trajectory_clear_button.bottom; anchors.topMargin: 15
+                onClicked: lidar_map_viewer.relative = !lidar_map_viewer.relative
+            }
+            WheelHandler {
+                onWheel: (event) => {
+                             lidar_map_viewer.zoom += event.angleDelta.y / 1200
+                         }
             }
         }
     }

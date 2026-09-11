@@ -22,7 +22,9 @@ private:
     qreal m_zoom;
     QList<QPointF> m_scanPoints;
     QWebSocket *m_webSocket;
+
     void paint(QPainter *painter) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 signals:
     void zoomChanged();

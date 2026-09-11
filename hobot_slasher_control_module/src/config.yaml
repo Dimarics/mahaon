@@ -12,7 +12,7 @@
 # ОСНОВНЫЕ ПАРАМЕТРЫ ГРАФ-SLAM
 # -----------------------------------------------
 
-use_icp_as_odometry: true
+# use_icp_as_odometry: true
 max_icp_search_distance: 5.0
 max_lost_without_icp: 5.0
 
@@ -127,27 +127,31 @@ icp-lidar-odometry:
   # и с указанными параметрами. Фильтры выполняются в порядке определения на
   # входном объекте pointcloud_t.
   #
-  filters:
-    - class_name: mp2p_icp_filters::FilterDecimateVoxels
-      params:
-        input_pointcloud_layer: "2d_lidar"
-        output_pointcloud_layer: "2d_lidar_decim"
-        error_on_missing_input_layer: false # не завершать работу при отсутствии 2D лидара
-        voxel_filter_resolution: 0.05 # [м]
-        use_voxel_average: true
-        decimate_method: "DecimateMethod::VoxelAverage"
-        bounding_box_min: [-25, -25, -5.0]
-        bounding_box_max: [25, 25, 5.0]
 
   # Генераторы
   #
   generators:
     - class_name: mp2p_icp_filters::Generator
       params:
-        target_pointcloud_layer: "2d_lidar"
-        process_class_names_regex: ".*CObservation2DRangeScan.*"
-        # process_sensor_labels_regex: ".*"
+        target_pointcloud_layer: "lidar"
+        # process_class_names_regex: ".*CObservation2DRangeScan.*"
+        process_sensor_labels_regex: "lidar"
         default_pointcloud_class: "mrpt::maps::CSimplePointsMap"
+        # force_2d: true
+        # z_fixed_value: 0.0
+
+  filters:
+    - class_name: mp2p_icp_filters::FilterDecimateVoxels
+      params:
+        # enabled: false
+        input_pointcloud_layer: "lidar"
+        output_pointcloud_layer: "2d_lidar_decim"
+        error_on_missing_input_layer: true # не завершать работу при отсутствии 2D лидара
+        voxel_filter_resolution: 0.05 # [м]
+        use_voxel_average: true
+        decimate_method: "DecimateMethod::VoxelAverage"
+        bounding_box_min: [-25, -25, -5.0]
+        bounding_box_max: [25, 25, 5.0]
 
 # -----------------------------------
 # Конфигурация конвейера ICP

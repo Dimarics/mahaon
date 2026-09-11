@@ -86,6 +86,13 @@ void WebSocketInterface::setMotorSpeeds(uint8_t left_motor_pwm, uint8_t right_mo
     sendMessage(data);
 }
 
+void WebSocketInterface::setWaypoint(float x, float y, float yaw, bool relative) {
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << MSG_ID_SET_WAYPOINT << x << y << yaw << relative;
+    sendMessage(data);
+}
+
 void WebSocketInterface::startBuildingMap() {
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
@@ -169,12 +176,18 @@ void WebSocketInterface::messageHandler(const QByteArray &msg) {
         qDebug() << scan_points.size();
         break;
     }
-    case MSG_ID_MAP_CELL_POSITION_CHANGED: {
-        QPoint cellPos;
-        stream >> cellPos;
-        emit mapCellPositionChanged(cellPos);
+    case MSG_ID_VELOCITIES_CHANGED: {
+        float vx, vy, v_yaw;
+        stream >> vx >> vy >> v_yaw;
+        emit velocitiesChanged(vx, vy, v_yaw);
         break;
     }
+    // case MSG_ID_MAP_CELL_POSITION_CHANGED: {
+    //     QPoint cellPos;
+    //     stream >> cellPos;
+    //     emit mapCellPositionChanged(cellPos);
+    //     break;
+    // }
     default:
         qDebug() << "неизвестный код функции:" << function_code;
         break;

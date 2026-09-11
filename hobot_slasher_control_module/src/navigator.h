@@ -19,8 +19,18 @@ public:
     inline void cancel() { m_navigator.cancel(); }
 
 private:
+    double m_targetX = 0;
+    double m_targetY = 0;
+    double m_kpAngle = 1.2;
+    double m_maxLinear = 0.5;
+    double m_maxAngular = 1.0;
+    double m_arrRadius = 0.15;
+    // double m_shapeRadius = 0.15;
     mrpt::maps::COccupancyGridMap2D::Ptr m_map;
     mrpt::nav::CReactiveNavigationSystem m_navigator;
+    mrpt::nav::CRobot2NavInterface &m_robotInterface;
+    mrpt::nav::CAbstractPTGBasedReactive::TNavigationParamsPTG m_navigationParamsPTG;
+    void moveToPoint();
 };
 
 #endif // NAVIGATOR_H
