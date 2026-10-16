@@ -1,0 +1,70 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1">
+  <diagram name="Страница — 1" id="WiHrvfZttncR4C2MHSSG">
+    <mxGraphModel dx="1215" dy="813" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="CEIDgXLIreTvUFoVgnA8-68" value="" style="endArrow=classic;html=1;rounded=0;fillColor=default;strokeWidth=3;endSize=6;startSize=6;" parent="1" source="BzmVo1b9ybHeuSIOXnMN-3" target="BzmVo1b9ybHeuSIOXnMN-7" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="51" y="291" as="sourcePoint" />
+            <mxPoint x="570" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-3" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;детектор  вырождения лидара&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;- фильтрация по количеству точек&lt;/span&gt;&lt;/h3&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- оценка ковариации&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="90.00333333333333" y="270" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-4" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;Отключение карты и проверка траектории на адекватность&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="520.0033333333333" y="670" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-7" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;колёса + компас&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;абсолютное значение угла по компасу, дистанция берётся с колёс&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="360.00333333333333" y="270" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-8" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;смешивание значений через фильтр&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;использование библиотек&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="270.00333333333333" y="670" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-10" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;ровер для работы на улице&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="30.00333333333333" y="670" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-11" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;проверка компаса при работе мотора&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="360.00333333333333" y="440" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-12" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;IMU&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;как проверка на проскальзывание&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="490.00333333333333" y="100" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-14" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;абсолютное позиционирование по UWB либо GPS&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="190.00333333333333" y="50" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-15" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;приклеивание сканов вручную&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="690.0033333333333" y="470" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-16" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;упрощение существующего картографа&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="930.0033333333333" y="470" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-18" value="&lt;p style=&quot;margin: 10px 10px 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;выводить позицию карты&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 1px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;выводить позицию карты отдельно от одометрии&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="770.0033333333333" y="670" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-19" value="&lt;p style=&quot;margin-top: 10px; margin-bottom: 0px;&quot;&gt;&lt;span style=&quot;font-size: 16px; white-space-collapse: preserve;&quot;&gt;&lt;b&gt;только колёса&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;&lt;h3 style=&quot;margin: 10px; padding-top: 0px;&quot;&gt;&lt;span style=&quot;font-size: 12px; font-weight: 400; white-space-collapse: preserve;&quot;&gt;только колёса, если компас ведёт себя нестабильно&lt;/span&gt;&lt;/h3&gt;&lt;font face=&quot;Helvetica&quot;&gt;&lt;span style=&quot;white-space-collapse: preserve;&quot;&gt;&lt;/span&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;arcSize=10;labelBackgroundColor=none;" vertex="1" parent="1">
+          <mxGeometry x="630.0033333333333" y="270" width="210" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-21" value="" style="endArrow=none;html=1;rounded=0;fillColor=default;strokeWidth=3;startArrow=none;startFill=0;shadow=0;" edge="1" parent="1" source="BzmVo1b9ybHeuSIOXnMN-12" target="BzmVo1b9ybHeuSIOXnMN-19">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="310" y="350" as="sourcePoint" />
+            <mxPoint x="840" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-22" value="" style="endArrow=none;html=1;rounded=0;fillColor=default;strokeWidth=3;startArrow=none;startFill=0;shadow=0;" edge="1" parent="1" source="BzmVo1b9ybHeuSIOXnMN-12" target="BzmVo1b9ybHeuSIOXnMN-7">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="730" y="194" as="sourcePoint" />
+            <mxPoint x="850" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BzmVo1b9ybHeuSIOXnMN-23" value="" style="endArrow=classic;html=1;rounded=0;fillColor=default;strokeWidth=3;endSize=6;startSize=6;" edge="1" parent="1" source="BzmVo1b9ybHeuSIOXnMN-7" target="BzmVo1b9ybHeuSIOXnMN-19">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="310" y="350" as="sourcePoint" />
+            <mxPoint x="370" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

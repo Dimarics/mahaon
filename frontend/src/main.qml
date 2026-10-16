@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import Components as C
 import QmlComponents
 import App
+import QtGraphs
 
 Window {
     width: 960
@@ -27,26 +28,7 @@ Window {
             name: "yandex.mapping.cache.directory"
             value: "/tmp/yandex_cache"
         }
-
-        // name: "osm"
-        // PluginParameter {
-        //     name: "osm.mapping.host"
-        //     value: "https://tile.openstreetmap.org"
-        // }
-        // PluginParameter {
-        //     name: "osm.mapping.providersrepository.disabled"
-        //     value: "true"
-        // }
-        // PluginParameter {
-        //     name: "osm.user_agent"
-        //     value: "MyNavigator/1.0"
-        // }
     }
-    // Image {
-    //     scale: 1 / Screen.devicePixelRatio / 1.5
-    //     source: "qrc:/images/yandex_sat_100m.png"
-    //     anchors.centerIn: map_view
-    // }
 
     // Карта
     MapViewer {
@@ -125,24 +107,6 @@ Window {
             layer.smooth: true
             // referenceSurface: QtLocation.ReferenceSurface.Map
         }
-        /*
-        Rectangle {
-            id: marker_2
-            Component.onCompleted: {
-                console.log(map_view.map.fromCoordinate(QtPositioning.coordinate(56.29816, 38.19979)).x,
-                            map_view.map.fromCoordinate(QtPositioning.coordinate(56.29816, 38.19979)).y)
-
-                x = map_view.map.fromCoordinate(QtPositioning.coordinate(56.29816, 38.19979)).x / Screen.devicePixelRatio - 6
-                y = map_view.map.fromCoordinate(QtPositioning.coordinate(56.29816, 38.19979)).y / Screen.devicePixelRatio - 6
-            }
-            width: 12
-            height: 12
-            radius: 6
-            color: "red"
-            border.width: 1.5
-            border.color: "white"
-        }
-        */
         Component.onCompleted: {
             //map.clearData()
             for (let mapType of map.supportedMapTypes) {
@@ -173,7 +137,6 @@ Window {
             id: control_panel_layout
             spacing: 12
             anchors.centerIn: parent
-            //width: implicitWidth < control_panel.width ? control_panel.width : implicitWidth
             height: implicitHeight < control_panel.height ? control_panel.height : implicitHeight
             GridLayout {
                 id: coordinates
@@ -181,6 +144,7 @@ Window {
                 flow: GridLayout.TopToBottom
                 rowSpacing: 16; columnSpacing: 16
                 Layout.alignment: Qt.AlignCenter
+                Layout.topMargin: 10
                 CPText { text: "X, м" }
                 CPText { text: "Y, м" }
                 CPText { text: "yaw, °" }
@@ -188,19 +152,16 @@ Window {
                     id: coord_x
                     decimals: 4
                     min: -Infinity; max: Infinity;
-                    // onValueModified: App.device.protocol.setX(value / 1000)
                 }
                 C.NumberField {
                     id: coord_y
                     decimals: 4
                     min: -Infinity; max: Infinity;
-                    // onValueModified: App.device.protocol.setY(value / 1000)
                 }
                 C.NumberField {
                     id: yaw_field
                     decimals: 4
                     min: -Infinity; max: Infinity;
-                    // onValueModified: App.device.protocol.setZ(value / 1000)
                 }
                 CPText { text: "vx, м/с"; Layout.preferredWidth: yaw_label.width }
                 CPText { text: "vy, м/с"; Layout.preferredWidth: yaw_label.width }
@@ -219,7 +180,6 @@ Window {
                     id: velocity_yaw
                     decimals: 4
                     min: -360; max: 360
-                    // onValueModified: App.interface.setYaw(value * Math.PI / 180)
                 }
             }
             C.Joystick {
@@ -240,6 +200,31 @@ Window {
                 //leftText: "🡰"; rightText: "🡲"; topText: "🡱"; bottomText: "🡳"
                 leftText: "◄"; rightText: "►"; topText: "▲"; bottomText: "▼"
                 Layout.alignment: Qt.AlignHCenter
+            }
+            C.Button {
+                text: "СТОП"
+                Layout.preferredWidth: 120; Layout.preferredHeight: 30
+                onClicked: {
+                    App.interface.clearWaypoints()
+                    // lidar_map_viewer.clearWaypoints()
+                }
+            }
+            CPText { text: "линейная скорость, м/с" }
+            C.Volume {
+                id: lin_vel
+                min: 0; max: 0.15
+                decimals: 2
+                value: 0.07
+                Layout.fillWidth: true
+            }
+            CPText { text: "угловая скорость, °/с" }
+            C.Volume {
+                id: ang_vel
+                min: 0; max: 80
+                decimals: 0
+                value: 20
+                Layout.fillWidth: true
+                Layout.bottomMargin: 10
             }
         }
     }
@@ -263,42 +248,25 @@ Window {
         checkable: true
         onToggled: App.interface.setMowingEnabled(checked)
     }
-    // Component {
-    //     id: map_point
-    //     MapQuickItem {
-    //         // coordinate: QP.QtPositioning.coordinate(56.29816, 38.19979)
-    //         anchorPoint: Qt.point(sourceItem.width / 2, sourceItem.height / 2)
-    //         sourceItem: Rectangle {
-    //             width: 10
-    //             height: 10
-    //             radius: 5
-    //             color: "green"
-    //             border.width: 1
-    //             border.color: "white"
-    //         }
-    //     }
-    // }
     Timer {
         interval: 100
         running: true
         repeat: true
         onTriggered: {
-            var pwm = 90 * 0.2
             if (joystick_1.active) {
                 App.interface.setMoveParams(joystick_1.valueX, joystick_1.valueY, joystick_2.valueX, joystick_2.valueY);
             } else if (joystick_2.active) {
                 App.interface.setMoveParams(joystick_1.valueX, joystick_1.valueY, joystick_2.valueX, joystick_2.valueY);
             } else if (buttonJoystick.topStatePressed) {
-                App.interface.setMotorSpeeds(90 + 90 * 0.25, 90 + 90 * 0.2)
-                // console.log("forward")
+                App.interface.setMotorSpeeds(lin_vel.value, 0)
             } else if (buttonJoystick.bottomStatePressed) {
-                App.interface.setMotorSpeeds(90 - 90 * 0.2, 90 - 90 * 0.28)
+                App.interface.setMotorSpeeds(-lin_vel.value, 0)
             } else if (buttonJoystick.leftStatePressed) {
-                App.interface.setMotorSpeeds(90 - 90 * 0.06, 90 + 90 * 0.06)
+                App.interface.setMotorSpeeds(0, ang_vel.value / 180.0 * Math.PI)
             } else if (buttonJoystick.rightStatePressed) {
-                App.interface.setMotorSpeeds(90 + 90 * 0.1, 90 - 90 * 0.1)
+                App.interface.setMotorSpeeds(0, -ang_vel.value / 180.0 * Math.PI)
             } else {
-                App.interface.setMotorSpeeds(90, 90)
+                App.interface.setMotorSpeeds(0, 0)
                 // console.log("stop")
             }
         }
@@ -331,49 +299,60 @@ Window {
         title: "grid map viewer"
         width: 800; height: 600
         visible: true
-        // color: C.Style.backgroundColor_1
         transientParent: null
         LidarMapViewer {
             id: lidar_map_viewer
             width: parent.width; height: parent.height
             trajectoryVisible: trajectory_radio_button.checked
+            waypointsMovement: waypoints_movement.checked
             relative: true
-            C.RadioButton {
-                id: trajectory_radio_button
-                text: "Показывать траекторию"
-                font.pointSize: 10
-                x: 15; y: 15
-                height: 30
-                checked: true
-            }
-            C.Button {
-                id: build_map_button
-                text: checked ? "Завершить сканирование" : "Начать сканирование"
-                width: 150; height: 30
-                anchors.left: trajectory_radio_button.left; anchors.top: trajectory_radio_button.bottom; anchors.topMargin: 15
-                checkable: true
-                onToggled: {
-                    if (checked) {
-                        App.interface.startBuildingMap()
-                        lidar_map_viewer.clearTrajectory()
-                    } else {
-                        App.interface.finishBuildingMap()
+            ColumnLayout {
+                x: 12; y: 12
+                spacing: 10
+                // width: 500
+                C.RadioButton {
+                    id: trajectory_radio_button
+                    text: "Показывать траекторию"
+                    font.pointSize: 10
+                    Layout.preferredHeight: 30
+                    checked: true
+                }
+                C.RadioButton {
+                    id: waypoints_movement
+                    text: "Движение по плану"
+                    font.pointSize: 10
+                    Layout.preferredHeight: 30
+                    checked: false
+                }
+                C.Button {
+                    id: build_map_button
+                    text: checked ? "Завершить сканирование" : "Начать сканирование"
+                    Layout.preferredWidth: 150; Layout.preferredHeight: 30
+                    checkable: true
+                    Layout.alignment: Qt.AlignLeft
+                    onToggled: {
+                        if (checked) {
+                            App.interface.startBuildingMap()
+                            lidar_map_viewer.clearTrajectory()
+                        } else {
+                            App.interface.finishBuildingMap()
+                        }
                     }
                 }
-            }
-            C.Button {
-                id: trajectory_clear_button
-                text: "Очистить траекторию"
-                width: 150; height: 30
-                anchors.left: build_map_button.left; anchors.top: build_map_button.bottom; anchors.topMargin: 15
-                onClicked: lidar_map_viewer.clearTrajectory()
-            }
-            C.Button {
-                id: relative_button
-                text: "Сменить ориентацию"
-                width: 150; height: 30
-                anchors.left: trajectory_clear_button.left; anchors.top: trajectory_clear_button.bottom; anchors.topMargin: 15
-                onClicked: lidar_map_viewer.relative = !lidar_map_viewer.relative
+                C.Button {
+                    id: trajectory_clear_button
+                    text: "Очистить траектории"
+                    Layout.preferredWidth: 150; Layout.preferredHeight: 30
+                    Layout.alignment: Qt.AlignLeft
+                    onClicked: lidar_map_viewer.clearTrajectory()
+                }
+                C.Button {
+                    id: relative_button
+                    text: "Сменить ориентацию"
+                    Layout.preferredWidth: 150; Layout.preferredHeight: 30
+                    Layout.alignment: Qt.AlignLeft
+                    onClicked: lidar_map_viewer.relative = !lidar_map_viewer.relative
+                }
             }
             WheelHandler {
                 onWheel: (event) => {

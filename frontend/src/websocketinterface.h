@@ -18,21 +18,30 @@ public:
         MSG_ID_YAW_CHANGED,
         MSG_ID_LOCAL_POSITION_CHANGED,
         MSG_ID_GLOBAL_POSITION_CHANGED,
-        MSG_ID_SCAN_POINTS_CHANGED,
+        MSG_ID_SCAN_RECEIVED,
         MSG_ID_VELOCITIES_CHANGED,
 
         MSG_ID_SET_MOVE_PARAMS,
+        MSG_ID_SET_MOTOR_PWM,
         MSG_ID_SET_MOTOR_SPEEDS,
         MSG_ID_SET_SPEED,
         MSG_ID_SET_WAYPOINT,
+        MSG_ID_ADD_WAYPOINT,
         MSG_ID_SET_WAYPOINTS,
+        MSG_ID_CLEAR_WAYPOINTS,
+        MSG_ID_WAYPOINTS_UPDATED,
 
         MSG_ID_AUTOPILOT_ENABLE,
         MSG_ID_AUTOPILOT_DISABLE,
         MSG_ID_START_BUILDING_MAP,
         MSG_ID_FINISH_BUILDING_MAP,
+        MSG_ID_MAP_UPDATED,
         MSG_ID_MOWING_ENABLE,
         MSG_ID_MOWING_DISABLE,
+
+        // debug
+        MSG_ID_ENC_CHANGED,
+        MSG_ID_IMU_CHANGED,
     };
     WebSocketInterface(QObject *parent = nullptr);
     Q_INVOKABLE inline bool areaContainsPoint(const QPointF &pos, const QList<QPointF> &coords) {
@@ -49,8 +58,11 @@ public slots:
     Q_INVOKABLE void connectDevice();
     Q_INVOKABLE void disconnectDevice();
     Q_INVOKABLE void setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y);
-    Q_INVOKABLE void setMotorSpeeds(uint8_t left_motor_pwm, uint8_t right_motor_pwm);
+    Q_INVOKABLE void setMotorPwm(uint16_t left_motor_pwm, uint16_t right_motor_pwm);
+    Q_INVOKABLE void setMotorSpeeds(float lin_vel, float ang_vel);
     Q_INVOKABLE void setWaypoint(float x, float y, float yaw, bool relative = false);
+    Q_INVOKABLE void addWaypoint(float x, float y, float yaw, bool relative = false);
+    Q_INVOKABLE void clearWaypoints();
 
     Q_INVOKABLE void startBuildingMap();
     Q_INVOKABLE void finishBuildingMap();
@@ -65,8 +77,14 @@ signals:
     void yawChanged(float yaw);
     void localPositionChanged(float x, float y, float yaw);
     void globalPositionChanged(float latitude, float longitude, uint16_t altitude);
+    void scanReceived(const QList<QPointF> &pointCloud);
     void velocitiesChanged(float vx, float vy, float v_yaw);
+    void mapChanged(uint32_t width, uint32_t height, float resolution,
+                    double ox, double oy, const QByteArray &cells_data);
+    void waypointsUpdated(const QList<QPointF> &waypoints);
     // void mapCellPositionChanged(const QPoint &cellPos);
+    void encPositionChanged(double x, double y, double yaw);
+    void imuPositionChanged(double x, double y, double yaw);
 };
 
 #endif // WEBSOCKETINTERFACE_H

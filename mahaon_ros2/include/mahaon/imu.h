@@ -1,0 +1,23 @@
+#ifndef IMU_H
+#define IMU_H
+
+#include "bno085.h"
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/steady_timer.hpp>
+
+class IMU
+{
+public:
+    IMU(boost::asio::io_context &io_context);
+    void shutdown();
+
+private:
+    bool m_connected;
+    TwoWire m_wire;
+    Adafruit_BNO08x m_bno085;
+    sh2_SensorValue_t m_sensorValue;
+    boost::asio::steady_timer m_timer;
+    void poll(const boost::system::error_code &ec);
+};
+
+#endif // IMU_H

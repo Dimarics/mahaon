@@ -17,8 +17,8 @@ int rotate_speed = 300;
 int forward_rotate_speed = 100;
 
 HardwareSerial &debug_serial = Serial;
-HardwareSerial &radio_serial = Serial1;
-HardwareSerial &slave_serial = Serial2;
+HardwareSerial &radio_serial = Serial2;
+HardwareSerial &slave_serial = Serial1;
 HardwareSerial &gps_serial = Serial3;
 
 HobotSlasherProtocol slave;

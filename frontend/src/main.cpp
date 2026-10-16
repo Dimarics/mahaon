@@ -14,8 +14,8 @@ int main(int argc, char *argv[]) {
     engine->load("qrc:/main.qml");
     return 0;*/
     QGuiApplication app(argc, argv);
-    QStringList providers = QGeoServiceProvider::availableServiceProviders();
-    qDebug() << "Доступные провайдеры:" << providers;
+    // QStringList providers = QGeoServiceProvider::availableServiceProviders();
+    // qDebug() << "Доступные провайдеры:" << providers;
     //qputenv("QT_WASM_PLATFORM_PLUGIN", "wasm");
     //qDebug() << QDir(":/").entryList();
     qmlRegisterSingletonType<AppGlobal>("App", 1, 0, "App", AppGlobal::qmlInstance);

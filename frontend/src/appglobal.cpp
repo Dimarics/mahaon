@@ -1,7 +1,10 @@
 #include "appglobal.h"
+#include "serialportinterface.h"
 #include "websocketinterface.h"
 
-AppGlobal::AppGlobal() : m_interface(new WebSocketInterface(this)) { }
+AppGlobal::AppGlobal() : m_interface(new WebSocketInterface(this)) {
+    // new SerialPortInterface();
+}
 
 void AppGlobal::setInterface(QObject *interface)
 {

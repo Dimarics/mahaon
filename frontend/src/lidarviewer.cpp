@@ -13,9 +13,9 @@ LidarViewer::LidarViewer(QQuickItem *parent)
 {
     // setMipmap(true);
     setFillColor(QColor(0, 0, 0));
-    connect(window(), &QQuickWindow::visibilityChanged, this, &QQuickItem::update);
+    // connect(window(), &QQuickWindow::visibilityChanged, this, &QQuickItem::update);
 
-    m_webSocket->open(QUrl("ws://192.168.0.0:8081/lidarViewer"));
+    // m_webSocket->open(QUrl("ws://192.168.0.0:8081/lidarViewer"));
     // m_webSocket->open(QUrl("ws://192.168.1.65:8081/lidarViewer"));
     // m_webSocket->open(QUrl("ws://192.168.31.21:8081/lidarViewer"));
     connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, [this](const QByteArray &data) {
@@ -35,6 +35,14 @@ LidarViewer::LidarViewer(QQuickItem *parent)
         }
     });
     connectTimer->start();
+
+    //-------------------------------------------------------
+    auto interface = qobject_cast<WebSocketInterface*>(AppGlobal::instance()->interface());
+    connect(interface, &WebSocketInterface::scanReceived, this, [this](const QList<QPointF> &pointCloud) {
+        if (pointCloud.isEmpty()) return;
+        m_scanPoints = pointCloud;
+        update();
+    });
 }
 
 void LidarViewer::setZoom(qreal zoom) {
@@ -93,10 +101,12 @@ void LidarViewer::paint(QPainter *painter)
 }
 
 void LidarViewer::mousePressEvent(QMouseEvent *event) {
-    const qreal k = qreal(width() > height() ? height() : width()) / 8.4 / 2.0 * m_zoom;
-    const qreal x = -(event->pos().y() - height() / 2.0) / k;
-    const qreal y = -(event->pos().x() - width() / 2.0) / k;
-    // qDebug() << x << y << std::atan2(y, x) / M_PI * 180.0;
-    auto interface = qobject_cast<WebSocketInterface*>(AppGlobal::instance()->interface());
-    interface->setWaypoint(x, y, std::atan2(y, x), true);
+    if (event->button() == Qt::LeftButton) {
+        const qreal k = qreal(width() > height() ? height() : width()) / 8.4 / 2.0 * m_zoom;
+        const qreal x = -(event->pos().y() - height() / 2.0) / k;
+        const qreal y = -(event->pos().x() - width() / 2.0) / k;
+        // qDebug() << x << y << std::atan2(y, x) / M_PI * 180.0;
+        auto interface = qobject_cast<WebSocketInterface*>(AppGlobal::instance()->interface());
+        interface->setWaypoint(x, y, std::atan2(y, x), true);
+    }
 }

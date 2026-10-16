@@ -1,4 +1,5 @@
 #include "websocketinterface.h"
+#include "qbytearray_datastream.h"
 
 WebSocketInterface::WebSocketInterface(QObject *parent)
     : QObject(parent)
@@ -10,14 +11,7 @@ WebSocketInterface::WebSocketInterface(QObject *parent)
     // connect(m_webSocket, &QWebSocket::stateChanged, this, [](QAbstractSocket::SocketState state) {
     //     qDebug() << state;
     // });
-    connect(m_webSocket, &QWebSocket::errorOccurred, this, [this] {
-        QTimer::singleShot(1000, this, [this] {
-            if (m_webSocket->state() == QAbstractSocket::UnconnectedState) {
-                m_webSocket->open(m_webSocket->requestUrl());
-            }
-        });
-    });
-    //
+
     // connect(this, &QWebSocket::messageAccepted, this, [this] {
     //     //qDebug() << m_queue;
     //     if (!m_queue.isEmpty()) {
@@ -79,17 +73,40 @@ void WebSocketInterface::setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, u
     sendMessage(data);
 }
 
-void WebSocketInterface::setMotorSpeeds(uint8_t left_motor_pwm, uint8_t right_motor_pwm) {
+void WebSocketInterface::setMotorPwm(uint16_t left_motor_pwm, uint16_t right_motor_pwm)
+{
     QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << MSG_ID_SET_MOTOR_SPEEDS << left_motor_pwm << right_motor_pwm;
+    QByteArrayWriter writer(data);
+    writer << MSG_ID_SET_MOTOR_PWM << left_motor_pwm << right_motor_pwm;
+    sendMessage(data);
+}
+
+void WebSocketInterface::setMotorSpeeds(float lin_vel, float ang_vel)
+{
+    QByteArray data;
+    QByteArrayWriter writer(data);
+    writer << MSG_ID_SET_MOTOR_SPEEDS << lin_vel << ang_vel;
     sendMessage(data);
 }
 
 void WebSocketInterface::setWaypoint(float x, float y, float yaw, bool relative) {
     QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << MSG_ID_SET_WAYPOINT << x << y << yaw << relative;
+    QByteArrayWriter writer(data);
+    writer << MSG_ID_SET_WAYPOINT << x << y << yaw << relative;
+    sendMessage(data);
+}
+
+void WebSocketInterface::addWaypoint(float x, float y, float yaw, bool relative) {
+    QByteArray data;
+    QByteArrayWriter writer(data);
+    writer << MSG_ID_ADD_WAYPOINT << x << y << yaw << relative;
+    sendMessage(data);
+}
+
+void WebSocketInterface::clearWaypoints() {
+    QByteArray data;
+    QByteArrayWriter writer(data);
+    writer << MSG_ID_CLEAR_WAYPOINTS;
     sendMessage(data);
 }
 
@@ -117,7 +134,8 @@ void WebSocketInterface::setMowingEnabled(bool enable) {
 
 void WebSocketInterface::connectDevice() {
     if (m_webSocket->state() == QAbstractSocket::UnconnectedState) {
-        // qDebug() << "try connect";
+        qDebug() << "try connect";
+        // m_webSocket->open(QUrl(QString("ws://%1:%2/api").arg("localhost").arg(8081)));
         m_webSocket->open(QUrl(QString("ws://%1:%2/api").arg("192.168.0.0").arg(8081)));
         // m_webSocket->open(QUrl(QString("ws://%1:%2/api").arg("192.168.1.65").arg(8081)));
         // m_webSocket->open(QUrl(QString("ws://%1:%2/api").arg("192.168.31.21").arg(8081)));
@@ -133,7 +151,7 @@ void WebSocketInterface::disconnectDevice() {
 
 void WebSocketInterface::messageHandler(const QByteArray &msg) {
     uint8_t function_code;
-    QDataStream stream(msg);
+    QByteArrayReader stream(msg);
     stream >> function_code;
     switch(function_code) {
     case MSG_ID_SET_MOVE_PARAMS: {
@@ -170,10 +188,16 @@ void WebSocketInterface::messageHandler(const QByteArray &msg) {
         emit globalPositionChanged(latitude, longitude, altitude);
         break;
     }
-    case MSG_ID_SCAN_POINTS_CHANGED: {
-        QList<QPointF> scan_points;
-        stream >> scan_points;
-        qDebug() << scan_points.size();
+    case MSG_ID_SCAN_RECEIVED: {
+        size_t size;
+        stream >> size;
+        QList<QPointF> pointCloud(size);
+        for (size_t i = 0; i < size; ++i) {
+            float x, y;
+            stream >> x >> y;
+            pointCloud[i] = QPointF(x, y);
+        }
+        emit scanReceived(pointCloud);
         break;
     }
     case MSG_ID_VELOCITIES_CHANGED: {
@@ -188,6 +212,34 @@ void WebSocketInterface::messageHandler(const QByteArray &msg) {
     //     emit mapCellPositionChanged(cellPos);
     //     break;
     // }
+    case MSG_ID_MAP_UPDATED: {
+        uint32_t width, height;
+        float resolution;
+        double ox, oy;
+        QByteArray cells_data;
+        stream >> width >> height >> resolution >> ox >> oy >> cells_data;
+        emit mapChanged(width, height, resolution, ox, oy, cells_data);
+        break;
+    }
+    case MSG_ID_WAYPOINTS_UPDATED: {
+        uint32_t size;
+        stream >> size;
+        QList<QPointF> waypoints(size);
+        for (uint32_t i = 0; i < size; ++i) {
+            float x, y;
+            stream >> x >> y;
+            waypoints[i] = {x, y};
+        }
+        // qDebug() << waypoints;
+        emit waypointsUpdated(waypoints);
+        break;
+    }
+    case MSG_ID_ENC_CHANGED: {
+        float x, y, yaw;
+        stream >> x >> y >> yaw;
+        emit encPositionChanged(x, y, yaw);
+        break;
+    }
     default:
         qDebug() << "неизвестный код функции:" << function_code;
         break;

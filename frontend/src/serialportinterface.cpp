@@ -1,8 +1,12 @@
 #include "serialportinterface.h"
+#include "imu_trajectory_engine.h"
+#include "qbytearray_datastream.h"
 #include <QSerialPortInfo>
+#include <QQuaternion>
 
 SerialPortInterface::SerialPortInterface()
     : m_serialPort(new QSerialPort(this))
+    , m_tcp(new QTcpSocket(this))
     , m_connectTimer(new QTimer(this))
     , m_timeout(new QTimer(this))
 {
@@ -13,8 +17,9 @@ SerialPortInterface::SerialPortInterface()
     uint8_t *a = ar + 2;
     qDebug() << a[1];
     */
-
     m_serialPort->setBaudRate(9600);
+    qDebug() << "read buffer size" << m_serialPort->readBufferSize();
+    connect(m_tcp, &QIODevice::readyRead, this, &SerialPortInterface::readPort);
     connect(m_serialPort, &QSerialPort::readyRead, this, &SerialPortInterface::readPort);
     connect(m_serialPort, &QSerialPort::errorOccurred, this, [this](QSerialPort::SerialPortError error) {
         switch (error) {
@@ -49,30 +54,33 @@ SerialPortInterface::SerialPortInterface()
 
     m_connectTimer->setInterval(1000);
     connect(m_connectTimer, &QTimer::timeout, this, [this] {
-        if (!m_serialPort->isOpen()) {
-            QList<QSerialPortInfo> port_list = QSerialPortInfo::availablePorts();
-            for (QSerialPortInfo &serialPortInfo : port_list) {
-                // qDebug() << "check port:" << serialPortInfo.portName();
-                // qDebug() << "vendor identifier:" << serialPortInfo.vendorIdentifier();
-                // qDebug() << "product identifier:" << serialPortInfo.productIdentifier();
-                // if (serialPortInfo.vendorIdentifier() == 6790 &&
-                //         serialPortInfo.productIdentifier() == 29987) // arduino uno
-                if (serialPortInfo.vendorIdentifier() == 6790 &&
-                        serialPortInfo.productIdentifier() == 29987) // LoRa Ebyte E22-400T22U
-                {
-                    qDebug() << "set port...";
-                    m_serialPort->setPort(serialPortInfo);
-                    qDebug() << "success!";
-                    if (m_serialPort->open(QIODevice::ReadWrite)) {
-                        //m_serialPort->setDataTerminalReady(false);
-                        qDebug() << "connected:" << m_serialPort->portName();
-                        m_connectTimer->stop();
-                        break;
-                    } else {
-                        qDebug() << "connection error";
-                    }
-                }
-            }
+        // if (!m_serialPort->isOpen()) {
+        //     QList<QSerialPortInfo> port_list = QSerialPortInfo::availablePorts();
+        //     for (QSerialPortInfo &serialPortInfo : port_list) {
+        //         // qDebug() << "check port:" << serialPortInfo.portName();
+        //         // qDebug() << "vendor identifier:" << serialPortInfo.vendorIdentifier();
+        //         // qDebug() << "product identifier:" << serialPortInfo.productIdentifier();
+        //         // if (serialPortInfo.vendorIdentifier() == 6790 &&
+        //         //         serialPortInfo.productIdentifier() == 29987) // arduino uno
+        //         if (serialPortInfo.vendorIdentifier() == 6790 &&
+        //                 serialPortInfo.productIdentifier() == 29987) // LoRa Ebyte E22-400T22U
+        //         {
+        //             qDebug() << "set port...";
+        //             m_serialPort->setPort(serialPortInfo);
+        //             qDebug() << "success!";
+        //             if (m_serialPort->open(QIODevice::ReadWrite)) {
+        //                 qDebug() << "connected:" << m_serialPort->portName();
+        //                 m_connectTimer->stop();
+        //                 break;
+        //             } else {
+        //                 qDebug() << "connection error";
+        //             }
+        //         }
+        //     }
+        // }
+        if (!m_tcp->isOpen()) {
+            qDebug() << "try connect";
+            m_tcp->connectToHost("192.168.1.202", 80);
         }
     });
     m_connectTimer->start();
@@ -100,14 +108,10 @@ SerialPortInterface::SerialPortInterface()
 
 void SerialPortInterface::setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y)
 {
-    // qDebug() << stick_1_x << stick_1_y << stick_2_x << stick_2_y;
-    // uint8_t data[8] {
-    //     uint8_t(stick_1_x >> 8), uint8_t(stick_1_x),
-    //     uint8_t(stick_1_y >> 8), uint8_t(stick_1_y),
-    //     uint8_t(stick_2_x >> 8), uint8_t(stick_2_x),
-    //     uint8_t(stick_2_y >> 8), uint8_t(stick_2_y),
-    // };
-    // sendPacket(MSG_ID_SET_MOVE_PARAMS, data, 8);
+    QByteArray data;
+    QByteArrayWriter writer(data);
+    writer << stick_1_x << stick_1_y << stick_2_x << stick_2_y;
+    sendPacket(MSG_ID_SET_MOTOR_SPEEDS, reinterpret_cast<uint8_t*>(data.data()), data.size());
 }
 
 void SerialPortInterface::setPortName(const QString &portName) {
@@ -144,7 +148,7 @@ void SerialPortInterface::disconnectDevice()
 
 void SerialPortInterface::send(const QByteArray &message)
 {
-    m_serialPort->write(message);
+    serialPort()->write(message);
 }
 
 void SerialPortInterface::sendPacket(uint8_t function_code)
@@ -172,10 +176,17 @@ void SerialPortInterface::sendPacket(uint8_t msg_id, uint8_t *data, uint8_t size
     send(packet);
 }
 
+void SerialPortInterface::setMotorSpeeds(uint16_t left_motor_pwm, uint16_t right_motor_pwm) {
+    QByteArray data;
+    QByteArrayWriter writer(data);
+    writer << left_motor_pwm << right_motor_pwm;
+    sendPacket(MSG_ID_SET_MOTOR_SPEEDS, reinterpret_cast<uint8_t*>(data.data()), data.size());
+}
+
 void SerialPortInterface::readPort() {
     // минимальный размер пакета: 4(header) + 1(crc) = 5
 
-    // qDebug() << QString(m_serialPort->readAll());
+    // qDebug() << serialPort()->readAll();
     // return;
 
 #pragma pack(push, 1)
@@ -196,10 +207,10 @@ void SerialPortInterface::readPort() {
     if (header.startBytes != 0xFFFF || serialPort()->bytesAvailable() - 5 < header.size) return;
     serialPort()->read(sizeof(Header));
 
-    uint8_t *data = new uint8_t[header.size];
+    QByteArray data;
     uint8_t crc = header.function_code + header.size;
     if (header.size) {
-        serialPort()->read(reinterpret_cast<char*>(data), header.size);
+        data = serialPort()->read(header.size);
         for (int i = 0; i < header.size; ++i) crc += data[i]; // подсчёт контрольной суммы
     }
 
@@ -210,45 +221,46 @@ void SerialPortInterface::readPort() {
 
     // обработка данных
     switch(header.function_code) {
-    case MSG_ID_SET_MOVE_PARAMS: {
-        uint16_t stick_1_x = uint16_t(data[0]) << 8 | data[1];
-        uint16_t stick_1_y = uint16_t(data[2]) << 8 | data[3];
-        uint16_t stick_2_x = uint16_t(data[4]) << 8 | data[5];
-        uint16_t stick_2_y = uint16_t(data[6]) << 8 | data[7];
-        qDebug() << "=========================";
-        qDebug() << "stick_1_x: " << stick_1_x;
-        qDebug() << "stick_1_y: " << stick_1_y;
-        qDebug() << "stick_2_x: " << stick_2_x;
-        qDebug() << "stick_2_y: " << stick_2_y;
-    }
+    case MSG_ID_ENC_CHANGED: {
+        QByteArrayReader stream(data);
+        float dl, dr;
+        stream >> dl >> dr;
+
+        static double x = 0, y = 0, f = 0;
+        double b = 0.16;
+        double d = (dr + dl) / 2.0;
+        double df = (dr - dl) / b;
+        double R = d / df;
+
+        if (df != 0) {
+            x = x + R * (sin(f + df) - sin(f));
+            y = y - R * (cos(f + df) - cos(f));
+            f = f + df;
+        } else {
+            x += d * cos(f);
+        }
+
+        // qDebug() << QString("x: %1, y: %2, f: %3").arg(QString::number(x, 'f', 4)).arg(QString::number(y, 'f', 4)).arg(QString::number(f * 180.0 / M_PI, 'f', 4));
+        emit encPositionChanged(x, y, f);
+
         break;
-    case MSG_ID_YAW_CHANGED: {
-        float yaw;
-        std::memcpy(&yaw, data, 4);
-        qDebug() << "yaw:" << yaw;
-        emit yawChanged(yaw);
     }
+    case MSG_ID_IMU_CHANGED: {
+        QByteArrayReader stream(data);
+        float real, i, j, k, ax, ay, az;
+        stream >> real >> i >> j >> k >> ax >> ay >> az;
+        static TrajectoryEngine te;
+        te.updateData(QQuaternion(real, i, j, k), QVector3D(ax, ay, az));
+        qDebug() << te.position();
+        emit imuPositionChanged(te.position().x(), te.position().y(), 0);
         break;
-    case MSG_ID_GLOBAL_POSITION_CHANGED: {
-        float latitude;
-        float longitude;
-        uint16_t altitude;
-        bool valid = data[10];
-        std::memcpy(&latitude, &data[0], 4);
-        std::memcpy(&longitude, &data[4], 4);
-        std::memcpy(&altitude, &data[8], 2);
-        qDebug() << "latitude:" << latitude << "longitude:" << longitude << "altitude:" << altitude << "valid:" << valid;
-        emit globalPositionChanged(latitude, longitude, altitude);
     }
-        break;
     default:
-        qDebug() << "неизвестный код функции";
+        qDebug() << "неизвестный код функции:" << header.function_code;
         break;
     }
 
-    delete[] data;
-
-    // поиск заголовка
+// поиск заголовка
 // #pragma pack(push, 1)
 //     struct Header {
 //         quint16 startBytes = 0;

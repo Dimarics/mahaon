@@ -4,6 +4,7 @@
 #include "qpolygon.h"
 #include <QtQmlIntegration>
 #include <QSerialPort>
+#include <QTcpSocket>
 #include <QTimer>
 
 class SerialPortInterface : public QObject
@@ -13,17 +14,35 @@ class SerialPortInterface : public QObject
     Q_PROPERTY(QString portName READ portName WRITE setPortName NOTIFY portNameChanged)
 public:
     enum MSG_ID : uint8_t {
-        MSG_ID_COMMAND_ACCEPTED = 1,
-        MSG_ID_SET_MOVE_PARAMS,
-        MSG_ID_AUTOPILOT_ENABLE,
-        MSG_ID_AUTOPILOT_DISABLE,
-        MSG_ID_YAW_CHANGED,
-        MSG_ID_GLOBAL_POSITION_CHANGED
+      MSG_ID_COMMAND_ACCEPTED = 1,
+
+      MSG_ID_YAW_CHANGED,
+      MSG_ID_LOCAL_POSITION_CHANGED,
+      MSG_ID_GLOBAL_POSITION_CHANGED,
+      MSG_ID_SCAN_POINTS_CHANGED,
+      MSG_ID_VELOCITIES_CHANGED,
+
+      MSG_ID_SET_MOVE_PARAMS,
+      MSG_ID_SET_MOTOR_SPEEDS,
+      MSG_ID_SET_SPEED,
+      MSG_ID_SET_WAYPOINT,
+      MSG_ID_SET_WAYPOINTS,
+
+      MSG_ID_AUTOPILOT_ENABLE,
+      MSG_ID_AUTOPILOT_DISABLE,
+      MSG_ID_START_BUILDING_MAP,
+      MSG_ID_FINISH_BUILDING_MAP,
+      MSG_ID_MOWING_ENABLE,
+      MSG_ID_MOWING_DISABLE,
+
+      MSG_ID_ENC_CHANGED,
+      MSG_ID_IMU_CHANGED,
     };
     SerialPortInterface();
-    inline uint8_t getByte() const { char c; m_serialPort->getChar(&c); return uint8_t(c); };
+    inline uint8_t getByte() const { char c; serialPort()->getChar(&c); return uint8_t(c); };
     inline QString portName() const { return m_serialPort->portName(); }
-    inline QSerialPort *serialPort() const { return m_serialPort; }
+    // inline QSerialPort *serialPort() const { return m_serialPort; }
+    inline QIODevice *serialPort() const { return m_tcp; }
     Q_INVOKABLE void setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y);
     Q_INVOKABLE void setPortName(const QString &portName);
     Q_INVOKABLE void connectDevice();
@@ -36,6 +55,8 @@ public:
         //qDebug() << pos << coords;
         return QPolygonF(coords).containsPoint(pos, Qt::OddEvenFill);
     }
+
+    Q_INVOKABLE void setMotorSpeeds(uint16_t left_motor_pwm, uint16_t right_motor_pwm);
 
 protected:
     virtual void readPort();
@@ -84,6 +105,7 @@ private:
     }
     QByteArray m_buffer;
     QSerialPort *m_serialPort;
+    QTcpSocket *m_tcp;
     QList<QByteArray> m_queue;
     QTimer *m_connectTimer;
     QTimer *m_timeout;
@@ -94,6 +116,8 @@ signals:
     void messageAccepted();
     void yawChanged(float yaw);
     void globalPositionChanged(float latitude, float longitude, uint16_t altitude);
+    void encPositionChanged(double x, double y, double yaw);
+    void imuPositionChanged(double x, double y, double yaw);
 };
 
 #endif // SERIALPORTINTERFACE_H

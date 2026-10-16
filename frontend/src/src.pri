@@ -5,14 +5,17 @@ QML_IMPORT_PATH += $$PWD
 
 HEADERS += \
     $$PWD/appglobal.h \
+    $$PWD/imu_trajectory_engine.h \
     $$PWD/lidarmapviewer.h \
     $$PWD/lidarviewer.h \
+    $$PWD/qbytearray_datastream.h \
     $$PWD/serialportinterface.h \
     $$PWD/streamviewer.h \
     $$PWD/websocketinterface.h
 
 SOURCES += \
     $$PWD/appglobal.cpp \
+    $$PWD/imu_trajectory_engine.cpp \
     $$PWD/lidarmapviewer.cpp \
     $$PWD/lidarviewer.cpp \
     $$PWD/main.cpp \
