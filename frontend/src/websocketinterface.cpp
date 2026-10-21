@@ -218,7 +218,7 @@ void WebSocketInterface::messageHandler(const QByteArray &msg) {
         double ox, oy;
         QByteArray cells_data;
         stream >> width >> height >> resolution >> ox >> oy >> cells_data;
-        emit mapChanged(width, height, resolution, ox, oy, cells_data);
+        emit mapUpdated(width, height, resolution, ox, oy, cells_data);
         break;
     }
     case MSG_ID_WAYPOINTS_UPDATED: {

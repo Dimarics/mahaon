@@ -42,9 +42,9 @@ Controller::Controller(boost::asio::io_context &io_context)
         m_webServer.send(buffer);
         m_navigator.updateMap(map);
     });
-    m_rosBridge.onCmdVelReceived([this](double lin_vel, double ang_vel) {
-        // setTwist(lin_vel, ang_vel);
-    });
+    // m_rosBridge.onCmdVelReceived([this](double lin_vel, double ang_vel) {
+    //     setTwist(lin_vel, ang_vel);
+    // });
     m_rosBridge.onPlanChanged([this](const std::vector<float> &path) {
         std::vector<uint8_t> buffer;
         BufWriter writer(buffer);
@@ -52,8 +52,8 @@ Controller::Controller(boost::asio::io_context &io_context)
         for (auto &point : path) writer << point;
         m_webServer.send(buffer);
 
-        // m_navigator.clearWaypoints();
-        // for (size_t i = 0; i < path.size(); i += 2) m_navigator.addWaypoint(path.at(i), path.at(i+1));
+        m_navigator.clearWaypoints();
+        for (size_t i = 0; i < path.size(); i += 2) m_navigator.addWaypoint(path.at(i), path.at(i+1));
     });
 
     // server
@@ -92,8 +92,8 @@ Controller::Controller(boost::asio::io_context &io_context)
             }
             // m_goalReached = false;
             // m_rosBridge.addWaypoint(target_x, target_y, yaw);
-            m_navigator.setWaypoint(target_x, target_y);
-            // m_rosBridge.plan(target_x, target_y, yaw);
+            // m_navigator.setWaypoint(target_x, target_y);
+            m_rosBridge.plan(target_x, target_y, yaw);
             break;
         }
         case MSG_ID_ADD_WAYPOINT: {
@@ -143,7 +143,6 @@ Controller::Controller(boost::asio::io_context &io_context)
             } else {
                 x += d * cos(f);
             }
-
             // std::vector<uint8_t> msg;
             // BufWriter writer(msg);
             // writer << MSG_ID_ENC_CHANGED << x << y << f;

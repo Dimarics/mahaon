@@ -79,7 +79,7 @@ signals:
     void globalPositionChanged(float latitude, float longitude, uint16_t altitude);
     void scanReceived(const QList<QPointF> &pointCloud);
     void velocitiesChanged(float vx, float vy, float v_yaw);
-    void mapChanged(uint32_t width, uint32_t height, float resolution,
+    void mapUpdated(uint32_t width, uint32_t height, float resolution,
                     double ox, double oy, const QByteArray &cells_data);
     void waypointsUpdated(const QList<QPointF> &waypoints);
     // void mapCellPositionChanged(const QPoint &cellPos);

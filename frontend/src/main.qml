@@ -214,7 +214,7 @@ Window {
                 id: lin_vel
                 min: 0; max: 0.15
                 decimals: 2
-                value: 0.07
+                value: 0.12
                 Layout.fillWidth: true
             }
             CPText { text: "угловая скорость, °/с" }
@@ -222,7 +222,7 @@ Window {
                 id: ang_vel
                 min: 0; max: 80
                 decimals: 0
-                value: 20
+                value: 40
                 Layout.fillWidth: true
                 Layout.bottomMargin: 10
             }
@@ -303,6 +303,7 @@ Window {
         LidarMapViewer {
             id: lidar_map_viewer
             width: parent.width; height: parent.height
+            scanVisible: scan_visible_button.checked
             trajectoryVisible: trajectory_radio_button.checked
             waypointsMovement: waypoints_movement.checked
             relative: true
@@ -311,17 +312,24 @@ Window {
                 spacing: 10
                 // width: 500
                 C.RadioButton {
+                    id: scan_visible_button
+                    text: "Показывать скан"
+                    font.pointSize: 10
+                    Layout.preferredHeight: 20
+                    checked: true
+                }
+                C.RadioButton {
                     id: trajectory_radio_button
                     text: "Показывать траекторию"
                     font.pointSize: 10
-                    Layout.preferredHeight: 30
+                    Layout.preferredHeight: 20
                     checked: true
                 }
                 C.RadioButton {
                     id: waypoints_movement
                     text: "Движение по плану"
                     font.pointSize: 10
-                    Layout.preferredHeight: 30
+                    Layout.preferredHeight: 20
                     checked: false
                 }
                 C.Button {

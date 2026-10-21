@@ -3,7 +3,6 @@
 #include "mahaon/controller.h"
 
 int main(int argc, char *argv[]) {
-
     rclcpp::init(argc, argv);
     boost::asio::io_context io_context;
     Controller controller(io_context);

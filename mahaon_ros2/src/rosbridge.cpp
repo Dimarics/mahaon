@@ -5,7 +5,7 @@
 #include <nav_msgs/msg/path.hpp>
 
 ROSbridge::ROSbridge(boost::asio::io_context &io_context)
-    : m_rosNode(std::make_shared<rclcpp::Node>("hobot_slasher"))
+    : m_rosNode(std::make_shared<rclcpp::Node>("mahaon"))
     , m_navigateActionClient(rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(m_rosNode, "navigate_to_pose"))
     , m_planActionClient(rclcpp_action::create_client<nav2_msgs::action::ComputePathToPose>(m_rosNode, "compute_path_to_pose"))
     , m_ioContext(io_context)
@@ -72,8 +72,8 @@ void ROSbridge::shutdown() {
 
 void ROSbridge::addWaypoint(double x, double y, double yaw) {
     RCLCPP_INFO(m_rosNode->get_logger(), "Target: %.2f, %.2f, %.2f", x, y, yaw);
-    // Ожидание доступности сервера
-    if (!m_navigateActionClient->wait_for_action_server(std::chrono::seconds(10))) {
+
+    if (!m_navigateActionClient->action_server_is_ready()) {
         RCLCPP_ERROR(m_rosNode->get_logger(), "Action server недоступен");
         return;
     }
@@ -85,14 +85,15 @@ void ROSbridge::addWaypoint(double x, double y, double yaw) {
     goal_msg.pose.pose.position.x = x;
     goal_msg.pose.pose.position.y = y;
     // Yaw -> кватернион (только вокруг Z)
-    goal_msg.pose.pose.orientation.w = std::cos(yaw / 2.0);
-    goal_msg.pose.pose.orientation.z = std::sin(yaw / 2.0);
+    // goal_msg.pose.pose.orientation.w = std::cos(yaw / 2.0);
+    // goal_msg.pose.pose.orientation.z = std::sin(yaw / 2.0);
 
     // Настройка колбэков для обратной связи
     auto send_goal_options = rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
 
     send_goal_options.feedback_callback =
-            [this](rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr, const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> fb) {
+            [this](rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>::SharedPtr,
+            const std::shared_ptr<const nav2_msgs::action::NavigateToPose::Feedback> fb) {
         RCLCPP_INFO(m_rosNode->get_logger(), "Текущая позиция: x: %.2f, y: %.2f, yaw: %.2f",
                     fb->current_pose.pose.position.x, fb->current_pose.pose.position.y, fb->current_pose.pose.orientation.w);
         RCLCPP_INFO(m_rosNode->get_logger(), "Осталось: %.2f м", fb->distance_remaining);
@@ -120,9 +121,9 @@ void ROSbridge::plan(double x, double y, double yaw) {
     auto goal_msg = nav2_msgs::action::ComputePathToPose::Goal();
     goal_msg.start.header.frame_id = "map";
     goal_msg.start.header.stamp = m_rosNode->now();
-    goal_msg.start.pose.orientation.w = 0.0;
-    goal_msg.start.pose.position.x = 0.0;
-    goal_msg.start.pose.position.y = 0.0;
+    // goal_msg.start.pose.orientation.w = 0.0;
+    // goal_msg.start.pose.position.x = 0.0;
+    // goal_msg.start.pose.position.y = 0.0;
     goal_msg.goal = goal_msg.start;
     goal_msg.goal.pose.position.x = x;
     goal_msg.goal.pose.position.y = y;
