@@ -1,4 +1,5 @@
 #include "I2CDevice.h"
+// #include <iostream>
 
 // #define DEBUG_SERIAL Serial
 
@@ -86,11 +87,14 @@ bool Adafruit_I2CDevice::detected(void) {
     //   return false;
 
     if (!_begun && !begin()) {
+        // std::cout << "!_begun && !begin()" << std::endl;
         return false;
     }
     if (_wire->isConnected(_addr)) {
+        // std::cout << "_wire->isConnected(_addr)" << std::endl;
         return true;
     }
+    // std::cout << "I2CDevice not detected" << std::endl;
     return false;
 }
 

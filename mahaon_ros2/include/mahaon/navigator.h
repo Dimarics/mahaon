@@ -5,6 +5,7 @@
 #include <queue>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <chrono>
 
 class Navigator
 {
@@ -35,13 +36,16 @@ public:
     void updateObstacles(const sensor_msgs::msg::LaserScan::SharedPtr &laser_scan);
     void updateMap(const nav_msgs::msg::OccupancyGrid::SharedPtr &map);
 
+    inline bool goalReached() { return m_goalReached; }
     inline void onTwistChanged(const std::function<void (double, double)> &callback) {
         m_twistChangedCallback = callback;
     }
     inline void onWaypointsChanged(const std::function<void (const std::vector<Point>)> &callback) {
         m_waypointsChanged = callback;
     }
-    inline bool goalReached() { return m_goalReached; }
+    inline void onPlanUpdateRequest(const std::function<void (const Point &goal)> &callback) {
+        m_planUpdateRequest = callback;
+    }
 
 private:
     const double kp_ang;
@@ -58,6 +62,8 @@ private:
     sensor_msgs::msg::LaserScan::SharedPtr m_laserScan;
     std::function<void (double, double)> m_twistChangedCallback;
     std::function<void (const std::vector<Point>)> m_waypointsChanged;
+    std::function<void (const Point &goal)> m_planUpdateRequest;
+    std::chrono::steady_clock::time_point m_timestamp;
 
     double angleDistance(double from, double to);
     std::vector<size_t> obstaclesOnWay(const Point& from, const Point& to);

@@ -28,6 +28,7 @@ bool TwoWire::begin(int bus) {
     _devicePath = "/dev/i2c-" + std::to_string(bus);
 
     _fd = open(_devicePath.c_str(), O_RDWR);
+    // std::cout << "fd: " << _fd << std::endl;
     if (_fd < 0) {
         std::cerr << "TwoWire: Не удалось открыть " << _devicePath
                   << " (ошибка: " << strerror(errno) << ")" << std::endl;

@@ -19,40 +19,27 @@
 #include "point.h"
 #include <cfloat>
 #include <cmath>
-#include <chrono>
-#include <functional>
 #include <vector>
 #include <queue>
-#include <algorithm>
 
 const double INF_COST = DBL_MAX;
 const int UNKNOWN_COST = 255;
 const int OCCUPIED_COST = 254;
 const int MAX_NON_OBSTACLE_COST = 252;
 
-struct coordsM
-{
-    int x, y;
-};
-
-struct coordsW
-{
-    double x, y;
-};
-
 struct tree_node
 {
     int x, y;
     double g = INF_COST;
     double h = INF_COST;
-    const tree_node * parent_id = nullptr;
+    const tree_node *parent_id = nullptr;
     bool is_in_queue = false;
     double f = INF_COST;
 };
 
 struct comp
 {
-    bool operator()(const tree_node * p1, const tree_node * p2)
+    bool operator()(const tree_node *p1, const tree_node *p2)
     {
         return (p1->f) > (p2->f);
     }
@@ -75,7 +62,7 @@ public:
     const int terminal_checking_interval = 5000;
     const bool use_final_approach_orientation = false;
 
-    coordsM src_{}, dst_{};
+    Point src_{}, dst_{};
     // nav2_costmap_2d::Costmap2D * costmap_{};
     CostMap *costmap_;
     /// the x-directional and y-directional lengths of the map respectively
@@ -91,7 +78,7 @@ public:
    * @param raw_path is used to return the path obtained by executing the algorithm
    * @return true if a path is found, false if no path is found in between the start and goal pose
    */
-    bool generatePath(std::vector<coordsW> &raw_path, std::function<bool()> cancel_checker);
+    bool generatePath(std::vector<PointF> &raw_path/*, std::function<bool()> cancel_checker*/);
 
     /**
    * @brief this function checks whether the cost of a point(cx, cy) on the costmap is less than or equal to the MAX_NON_OBSTACLE_COST
@@ -148,7 +135,7 @@ protected:
 
     // Parameters * params_;
 
-    const coordsM moves[8] = {{0, 1},
+    const Point moves[8] = {{0, 1},
                               {0, -1},
                               {1, 0},
                               {-1, 0},
@@ -182,22 +169,22 @@ protected:
    * @return true if a line of sight exists between the points
    */
     bool losCheck(
-            const int & x0, const int & y0, const int & x1, const int & y1,
-            double & sl_cost) const;
+            const int &x0, const int &y0, const int &x1, const int &y1,
+            double &sl_cost) const;
 
     /**
    * @brief it returns the path by backtracking from the goal to the start, by using their parent nodes
    * @param raw_points used to return the path  thus found
    * @param curr_id sends in the index of the goal coordinate, as stored in nodes_position
    */
-    void backtrace(std::vector<coordsW> & raw_points, const tree_node * curr_n) const;
+    void backtrace(std::vector<PointF> &raw_points, const tree_node *curr_n) const;
 
     /**
    * @brief it is an overloaded function to ease the cost calculations while performing the LOS check
    * @param cost denotes the total straight line traversal cost; it adds the traversal cost for the node (cx, cy) at every instance; it is also being returned
    * @return false if the traversal cost is greater than the MAX_NON_OBSTACLE_COST and true otherwise
    */
-    bool isSafe(const int & cx, const int & cy, double & cost) const
+    bool isSafe(const int &cx, const int &cy, double &cost) const
     {
         const double curr_cost = getCost(cx, cy);
         if ((costmap_->getCost(cx, cy) == UNKNOWN_COST && allow_unknown) ||
@@ -218,7 +205,7 @@ protected:
    *           wherever allow_unknown permits it at all
    * @return the scaled cost thus obtained
    */
-    inline double getCost(const int & cx, const int & cy) const
+    inline double getCost(const int &cx, const int &cy) const
     {
         const unsigned char cost = costmap_->getCost(cx, cy);
         return 26 + 0.9 * (cost == UNKNOWN_COST ? OCCUPIED_COST - 1 : cost);
@@ -229,7 +216,7 @@ protected:
    *                    <parameter>*(<actual_traversal_cost_from_costmap>)^2/(<max_cost>)^2
    * @return the traversal cost thus calculated
    */
-    inline double getTraversalCost(const int & cx, const int & cy)
+    inline double getTraversalCost(const int &cx, const int &cy)
     {
         double curr_cost = getCost(cx, cy);
         return w_traversal_cost * curr_cost * curr_cost / MAX_NON_OBSTACLE_COST /
@@ -241,7 +228,7 @@ protected:
    *                    <euc_cost_parameter>*<euclidean distance between the points (ax, ay) and (bx, by)>
    * @return the distance thus calculated
    */
-    inline double getEuclideanCost(const int & ax, const int & ay, const int & bx, const int & by)
+    inline double getEuclideanCost(const int &ax, const int &ay, const int &bx, const int &by)
     {
         return w_euc_cost * std::hypot(ax - bx, ay - by);
     }
@@ -251,7 +238,7 @@ protected:
    *                    <heuristic_cost_parameter>*<euclidean distance between the point and goal>
    * @return the heuristic cost
    */
-    inline double getHCost(const int & cx, const int & cy)
+    inline double getHCost(const int &cx, const int &cy)
     {
         return w_heuristic_cost * std::hypot(cx - dst_.x, cy - dst_.y);
     }
@@ -260,7 +247,7 @@ protected:
    * @brief checks if the given coordinates(cx, cy) lies within the map
    * @return the result of the check
    */
-    inline bool withinLimits(const int & cx, const int & cy) const
+    inline bool withinLimits(const int &cx, const int &cy) const
     {
         return cx >= 0 && cx < size_x_ && cy >= 0 && cy < size_y_;
     }
@@ -269,7 +256,7 @@ protected:
    * @brief checks if the coordinates of a node is the goal or not
    * @return the result of the check
    */
-    inline bool isGoal(const tree_node & this_node) const
+    inline bool isGoal(const tree_node &this_node) const
     {
         return this_node.x == dst_.x && this_node.y == dst_.y;
     }
@@ -284,7 +271,7 @@ protected:
    * @brief it stores id_this in node_position_ at the index [ size_x_*cy + cx ]
    * @param id_this a pointer to the location at which the data of the point(cx, cy) is stored in nodes_data_
    */
-    inline void addIndex(const int & cx, const int & cy, tree_node * node_this)
+    inline void addIndex(const int &cx, const int &cy, tree_node * node_this)
     {
         node_position_[size_x_ * cy + cx] = node_this;
     }
@@ -293,7 +280,7 @@ protected:
    * @brief retrieves the pointer of the location at which the data of the point(cx, cy) is stored in nodes_data
    * @return id_this is the pointer to that location
    */
-    inline tree_node * getIndex(const int & cx, const int & cy)
+    inline tree_node * getIndex(const int &cx, const int &cy)
     {
         return node_position_[size_x_ * cy + cx];
     }
@@ -302,7 +289,7 @@ protected:
    * @brief this function depending on the size of the nodes_data_ vector allots space to store the data for a node(x, y)
    * @param id_this is the index at which the data is stored/has to be stored for that node
    */
-    void addToNodesData(const int & id_this)
+    void addToNodesData(const int &id_this)
     {
         if (static_cast<int>(nodes_data_.size()) <= id_this) {
             nodes_data_.push_back({});

@@ -8,7 +8,9 @@ ROSbridge::ROSbridge(boost::asio::io_context &io_context)
     : m_rosNode(std::make_shared<rclcpp::Node>("mahaon"))
     , m_navigateActionClient(rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(m_rosNode, "navigate_to_pose"))
     , m_planActionClient(rclcpp_action::create_client<nav2_msgs::action::ComputePathToPose>(m_rosNode, "compute_path_to_pose"))
+    , m_saveMapClient(m_rosNode->create_client<slam_toolbox::srv::SerializePoseGraph>("slam_toolbox/serialize_map"))
     , m_ioContext(io_context)
+    , m_tfBroadcaster(std::make_shared<tf2_ros::TransformBroadcaster>(m_rosNode))
     , m_tfBuffer(m_rosNode->get_clock())
     , m_tfListener(m_tfBuffer)
     , m_tfTimer(io_context, std::chrono::milliseconds(100))
@@ -36,9 +38,9 @@ ROSbridge::ROSbridge(boost::asio::io_context &io_context)
             double roll, pitch, yaw;
             mat.getRPY(roll, pitch, yaw);
             // RCLCPP_INFO(m_rosNode->get_logger(), "Поза: (%.2f, %.2f, %.2f)", x, y, yaw);
-            // boost::asio::post(m_ioContext, [x, y, yaw, this] {
-            //     m_positionChangedCallback(x, y, yaw);
-            // });
+            boost::asio::post(m_ioContext, [x, y, yaw, this] {
+                m_laserOdomChangedCallback(x, y, yaw);
+            });
         });
         auto sub_map = m_rosNode->create_subscription<nav_msgs::msg::OccupancyGrid>
                 ("/map", rclcpp::QoS(rclcpp::KeepLast(1)).transient_local(),
@@ -68,6 +70,24 @@ ROSbridge::~ROSbridge() {
 
 void ROSbridge::shutdown() {
     m_tfTimer.cancel();
+}
+
+void ROSbridge::publishTransform(double x, double y, double yaw) {
+    tf2::Quaternion q;
+    q.setRPY(0, 0, yaw);
+
+    geometry_msgs::msg::TransformStamped tf;
+    tf.header.stamp = m_rosNode->now();
+    tf.header.frame_id = "odom";
+    tf.child_frame_id = "base_link";
+    tf.transform.translation.x = x;
+    tf.transform.translation.y = y;
+    tf.transform.translation.z = 0;
+    tf.transform.rotation.x = q.x();
+    tf.transform.rotation.y = q.y();
+    tf.transform.rotation.z = q.z();
+    tf.transform.rotation.w = q.w();
+    m_tfBroadcaster->sendTransform(tf);
 }
 
 void ROSbridge::addWaypoint(double x, double y, double yaw) {
@@ -162,9 +182,18 @@ void ROSbridge::plan(double x, double y, double yaw) {
     m_planActionClient->async_send_goal(goal_msg, options);
 }
 
+void ROSbridge::saveMap() {
+    if (!m_saveMapClient->service_is_ready()) {
+        RCLCPP_WARN(m_rosNode->get_logger(), "Save map сервис ещё не готов");
+        return;
+    }
+    auto request = std::make_shared<slam_toolbox::srv::SerializePoseGraph::Request>();
+    request->filename = "/home/mes/maps/map";
+    m_saveMapClient->async_send_request(request);
+}
+
 void ROSbridge::tfPoll(const boost::system::error_code &error_code) {
     if (error_code) return;
-
     try {
         geometry_msgs::msg::TransformStamped t = m_tfBuffer.lookupTransform("map", "base_link", tf2::TimePointZero);
         double x = t.transform.translation.x;
@@ -184,6 +213,7 @@ void ROSbridge::tfPoll(const boost::system::error_code &error_code) {
         });
     } catch (const tf2::TransformException &ex) {
         RCLCPP_WARN(m_rosNode->get_logger(), "Не удалось получить tf: %s", ex.what());
+        m_tfTimer.expires_at(m_tfTimer.expiry() + std::chrono::milliseconds(1000));
     }
 
     m_tfTimer.expires_at(m_tfTimer.expiry() + std::chrono::milliseconds(100));

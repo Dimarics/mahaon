@@ -13,6 +13,7 @@ if(UNIX)
     find_package(tf2 REQUIRED)
     find_package(tf2_geometry_msgs REQUIRED)
     find_package(tf2_ros REQUIRED)
+    find_package(slam_toolbox REQUIRED)
     find_package(Boost REQUIRED CONFIG COMPONENTS system)
 endif()
 
@@ -24,23 +25,25 @@ include_directories(
 )
 
 add_executable(mahaon
-    src/main.cpp
     src/controller.cpp
+    src/main.cpp
     # src/laser_scan_matcher.cpp
     src/imu.cpp
+    src/navigator.cpp
+    src/serialport.cpp
+    src/slamlauncher.cpp
     src/stateestimator.cpp
     src/rosbridge.cpp
-    src/serialport.cpp
     src/packetassembler.cpp
     src/webserversession.cpp
     src/webserver.cpp
-    src/navigator.cpp
 )
 
 target_link_libraries(mahaon PRIVATE bno085)
 
 if(WIN32)
     target_include_directories(mahaon PRIVATE
+        D:/Programs/lib
         D:/Programs/lib/ros2/include
         D:/Programs/lib/boost_1_91_0
         D:/Programs/lib/csm/sm
@@ -61,6 +64,7 @@ elseif(UNIX)
         ${tf2_ros_TARGETS}
         ${tf2_geometry_msgs_TARGETS}
         ${nav2_msgs_TARGETS}
+        ${slam_toolbox_TARGETS}
     )
 
     install(TARGETS mahaon DESTINATION lib/${PROJECT_NAME})

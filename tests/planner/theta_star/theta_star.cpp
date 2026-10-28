@@ -12,7 +12,6 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#include <functional>
 #include <vector>
 #include "theta_star.hpp"
 
@@ -23,30 +22,17 @@ ThetaStar::ThetaStar(CostMap *costmap)
     , index_generated_(0)
 {
     exp_node = new tree_node;
-    // params_ = params;
 }
-
-// void ThetaStar::setStartAndGoal(
-//   const geometry_msgs::msg::PoseStamped & start,
-//   const geometry_msgs::msg::PoseStamped & goal)
-// {
-//   unsigned int s[2], d[2];
-//   costmap_->worldToMap(start.pose.position.x, start.pose.position.y, s[0], s[1]);
-//   costmap_->worldToMap(goal.pose.position.x, goal.pose.position.y, d[0], d[1]);
-
-//   src_ = {static_cast<int>(s[0]), static_cast<int>(s[1])};
-//   dst_ = {static_cast<int>(d[0]), static_cast<int>(d[1])};
-// }
 
 void ThetaStar::setStartAndGoal(const PointF &start, const PointF &goal)
 {
     auto mstart = costmap_->worldToMap(start);
     auto mgoal = costmap_->worldToMap(goal);
-    src_ = {mstart.x, mstart.y};
-    dst_ = {mgoal.x, mgoal.y};
+    src_ = mstart;
+    dst_ = mgoal;
 }
 
-bool ThetaStar::generatePath(std::vector<coordsW> &raw_path, std::function<bool()> cancel_checker)
+bool ThetaStar::generatePath(std::vector<PointF> &raw_path/*, std::function<bool()> cancel_checker*/)
 {
     resetContainers();
     addToNodesData(index_generated_);
@@ -60,14 +46,14 @@ bool ThetaStar::generatePath(std::vector<coordsW> &raw_path, std::function<bool(
     nodes_opened = 0;
     
     while (!queue_.empty()) {
-        tree_node * curr_data = queue_.top();
+        tree_node *curr_data = queue_.top();
         queue_.pop();
         nodes_opened++;
         
-        if (nodes_opened % terminal_checking_interval == 0 && cancel_checker()) {
-            clearQueue();
-            // throw nav2_core::PlannerCancelled("Planner was canceled");
-        }
+        // if (nodes_opened % terminal_checking_interval == 0 && cancel_checker()) {
+        //     clearQueue();
+        //     throw std::runtime_error("Planner was canceled");
+        // }
         
         if (isGoal(*curr_data)) {
             backtrace(raw_path, curr_data);
@@ -151,19 +137,18 @@ void ThetaStar::setNeighbors(const tree_node *curr_data)
     }
 }
 
-void ThetaStar::backtrace(std::vector<coordsW> &raw_points, const tree_node *curr_n) const
+void ThetaStar::backtrace(std::vector<PointF> &raw_points, const tree_node *curr_n) const
 {
-    std::vector<coordsW> path_rev;
-    // coordsW world{};
+    std::vector<PointF> path_rev;
     do {
         auto world = costmap_->mapToWorld(curr_n->x, curr_n->y);
-        path_rev.push_back({world.x, world.y});
+        path_rev.push_back(world);
         if (path_rev.size() > 1) {
             curr_n = curr_n->parent_id;
         }
     } while (curr_n->parent_id != curr_n);
     auto world = costmap_->mapToWorld(curr_n->x, curr_n->y);
-    path_rev.push_back({world.x, world.y});
+    path_rev.push_back(world);
     
     raw_points.reserve(path_rev.size());
     for (int i = static_cast<int>(path_rev.size()) - 1; i >= 0; i--) {

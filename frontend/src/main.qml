@@ -229,6 +229,7 @@ Window {
         }
     }
     C.Button {
+        visible: false
         id: set_area_button
         text: checked ? "Сохранить" : "Изменить границы"
         x: 15; y: 15
@@ -241,6 +242,7 @@ Window {
         }
     }
     C.Button {
+        visible: false
         id: mowing_button
         text: checked ? "Завершить покос" : "Начать покос"
         width: 150; height: 30

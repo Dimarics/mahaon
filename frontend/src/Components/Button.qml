@@ -1,5 +1,6 @@
 import QtQuick
-import QtQuick.Controls.Basic as T
+import QtQuick.Controls.impl
+import QtQuick.Templates as T
 import QtQuick.Layouts
 
 T.Button {
@@ -19,16 +20,37 @@ T.Button {
     scale: pressed ? 0.95 : 1
     display: T.AbstractButton.TextUnderIcon
     icon.width: 40; icon.height: 40
-    icon.color: pressed ? Style.buttonTextPressedColor : hovered ? Style.buttonTextHoverColor : Style.buttonTextColor
+    // icon.color: pressed ? Style.buttonTextPressedColor : hovered ? Style.buttonTextHoverColor : Style.buttonTextColor
+    palette {
+        inactive {
+            buttonText: "white"
+        }
+        active {
+            buttonText: "white"
+        }
+        disabled {
+            buttonText: "white"
+        }
+    }
     Layout.preferredWidth: width; Layout.preferredHeight: height
     Layout.alignment: Qt.AlignCenter
+    contentItem: IconLabel {
+        spacing: root.spacing
+        mirrored: root.mirrored
+        display: root.display
+
+        icon: root.icon
+        text: root.text
+        font: root.font
+        color: root.pressed ? Style.buttonTextPressedColor : root.hovered ? Style.buttonTextHoverColor : Style.buttonTextColor
+    }
     background: Rectangle {
         id: backgroundRect
         border.width: 2
         Behavior on color { ColorAnimation { duration: 200 } }
         Behavior on border.color { ColorAnimation { duration: 100 } }
     }
-    containmentMask: RoundedRectMask { radius: borderRadius; width: root.width; height: root.height }
+    containmentMask: RoundedRectMask { radius: root.borderRadius; width: root.width; height: root.height }
     Behavior on icon.color { ColorAnimation { duration: 100 } }
     Behavior on scale { NumberAnimation { duration: 70 } }
     ToolTip { id: toolTip; visible: root.hovered && text }

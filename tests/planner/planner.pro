@@ -14,6 +14,7 @@ SOURCES += \
     gridmap.cpp \
     main.cpp \
     mainwindow.cpp \
+    navfn.cpp \
     theta_star/theta_star.cpp
 
 HEADERS += \
@@ -21,6 +22,7 @@ HEADERS += \
     costmapwidget.h \
     gridmap.h \
     mainwindow.h \
+    navfn.hpp \
     point.h \
     theta_star/theta_star.hpp
 

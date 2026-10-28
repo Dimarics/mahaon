@@ -5,6 +5,7 @@
 // #include "point.h"
 #include "costmap.h"
 #include "gridmap.h"
+#include "navfn.hpp"
 #include "theta_star/theta_star.hpp"
 
 class CostmapWidget : public QWidget
@@ -19,12 +20,14 @@ private:
     std::shared_ptr<GridMap> m_gridMap;
     CostMap m_costMap;
     ThetaStar m_thetaStarPlanner;
-    std::vector<coordsW> m_path;
+    NavFn m_navfnPlanner;
+    std::vector<PointF> m_path;
+
+    void calculateThetaStar();
 
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
 };
 

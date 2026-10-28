@@ -29,9 +29,9 @@ def generate_launch_description():
         parameters=[{
             'use_imu': False,
             'use_odom': False,
-            'base_frame': 'base_link',
-            'fixed_frame': 'odom',
-            'publish_tf': True,
+            # 'base_frame': 'base_link',
+            # 'fixed_frame': 'odom',
+            'publish_tf': False,
             'publish_odom': '/odom'
         }]
     )
@@ -59,6 +59,6 @@ def generate_launch_description():
         launch_ydlidar,
         tf2_node,
         scan_matcher,
-        launch_slam_toolbox,
+        # launch_slam_toolbox,
         mahaon
     ])

@@ -3,7 +3,8 @@
 2. ros2 launch ydlidar_ros2_driver x3_ydlidar_launch.py params_file:=/home/mes/ros2_ws/src/ydlidar_ros2_driver/params/ydlidar_x3.yaml
 3. ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser
 4. ros2 run ros2_laser_scan_matcher laser_scan_matcher --ros-args -p publish_odom:=/odom -p publish_tf:=true
-5. ros2 launch slam_toolbox online_sync_launch.py
+<!-- 5. ros2 launch slam_toolbox online_sync_launch.py -->
+5. ros2 launch slam_toolbox online_sync_launch.py slam_params_file:=/home/mes/ros2_ws/install/mahaon_ros2/share/mahaon_ros2/params/mapper_params.yaml
 
 -. ros2 run hobot_sl_ros2 hobot_sl
 -. ros2 launch hobot_sl_ros2 launch.py

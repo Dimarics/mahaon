@@ -35,6 +35,7 @@ void Navigator::addWaypoint(double x, double y) {
         _waypoints.pop();
     }
     m_waypointsChanged(waypoints);
+    m_timestamp = std::chrono::steady_clock::now();
 }
 
 void Navigator::clearWaypoints() {
@@ -223,7 +224,7 @@ void Navigator::moveToPoint() {
     double target_angle = std::atan2(dy, dx);
     double angle_error = angleDistance(m_pos.yaw, target_angle);
 
-    // // проверка на столкновения
+    // проверка на столкновения
     // if (m_laserScan) {
     //     for (size_t i = 0; i < m_laserScan->ranges.size(); ++i) {
     //         if (m_laserScan->ranges.at(i) > 0 && m_laserScan->ranges.at(i) <= 0.3) {
@@ -234,7 +235,6 @@ void Navigator::moveToPoint() {
     //             }
     //         }
     //     }
-    //     //
     //     for (size_t i = 0; i < m_laserScan->ranges.size(); ++i) {
     //         float p_range = m_laserScan->ranges.at(i);
     //         if (p_range > 0 && p_range <= 0.3) {
@@ -261,4 +261,10 @@ void Navigator::moveToPoint() {
     }
 
     m_twistChangedCallback(lin_vel, ang_vel);
+
+    if (std::chrono::duration_cast<std::chrono::milliseconds>
+            (std::chrono::steady_clock::now() - m_timestamp).count() > 800) {
+        m_timestamp = std::chrono::steady_clock::now();
+        m_planUpdateRequest(m_waypoints.back());
+    }
 }

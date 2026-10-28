@@ -6,7 +6,11 @@
 #include "mahaon/packetassembler.h"
 #include "mahaon/rosbridge.h"
 #include "mahaon/serialport.h"
+#include "mahaon/slamlauncher.h"
+#include "mahaon/stateestimator.h"
 #include "mahaon/webserver.h"
+#include <boost/process/v2/process.hpp>
+#include <boost/asio/readable_pipe.hpp>
 
 class Controller
 {
@@ -54,12 +58,14 @@ public:
 
 private:
     Position m_pos;
+    boost::asio::io_context m_ioContext;
     ROSbridge m_rosBridge;
     WebServer m_webServer;
     SerialPort m_motionController;
     PacketAssembler m_motionControllerPacketAssembler;
     Navigator m_navigator;
-    IMU m_imu;
+    SlamLauncher m_slamLauncher;
+    StateEstimator m_stateEstimator;
     void moveToPoint();
 };
 

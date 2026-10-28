@@ -1,11 +1,13 @@
 #include "mahaon/controller.h"
 #include "mahaon/buf_datastream.h"
+#include <boost/process/v2/stdio.hpp>
 
 Controller::Controller(boost::asio::io_context &io_context)
     : m_rosBridge(io_context)
     , m_webServer(io_context, 8081)
     , m_motionController(io_context, "/dev/ttyAMA0")
-    , m_imu(io_context)
+    , m_slamLauncher(io_context)
+    , m_stateEstimator(io_context)
 {
     m_rosBridge.onScanReceived([this](const sensor_msgs::msg::LaserScan::SharedPtr laser_scan) {
         std::vector<uint8_t> buffer;
@@ -20,10 +22,11 @@ Controller::Controller(boost::asio::io_context &io_context)
         m_webServer.send(buffer);
         m_navigator.updateObstacles(laser_scan);
     });
+    m_rosBridge.onLaserOdomChanged(std::bind_front(&StateEstimator::setLaserOdom, &m_stateEstimator));
     m_rosBridge.onPositionChanged([this](double x, double y, double yaw) {
         m_pos.x = x;
         m_pos.y = y;
-        m_pos.yaw = yaw;
+        // m_pos.yaw = yaw;
         m_webServer.send(MSG_ID_LOCAL_POSITION_CHANGED, float(x), float(y), float(yaw));
         // std::cout << "x: " << x << " y: " << y << " yaw: " << yaw << std::endl;
         // if (!m_goalReached) {
@@ -57,7 +60,7 @@ Controller::Controller(boost::asio::io_context &io_context)
     });
 
     // server
-    m_webServer.onMessageReceived([this](std::vector<uint8_t> &&msg) {
+    m_webServer.onMessageReceived([this, &io_context](std::vector<uint8_t> &&msg) {
         // std::cout << "msg received" << std::endl;
         uint8_t cmd;
         BufReader reader(msg);
@@ -113,6 +116,16 @@ Controller::Controller(boost::asio::io_context &io_context)
             m_navigator.clearWaypoints();
             break;
         }
+        case MSG_ID_START_BUILDING_MAP: {
+            m_slamLauncher.start(SlamLauncher::MAPPING);
+            break;
+        }
+        case MSG_ID_FINISH_BUILDING_MAP: {
+            m_rosBridge.saveMap();
+            // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            m_slamLauncher.finish();
+            break;
+        }
         default:
             std::cout << "неизвестный код функции: " << uint16_t(cmd) << std::endl;
             break;
@@ -148,7 +161,6 @@ Controller::Controller(boost::asio::io_context &io_context)
             // writer << MSG_ID_ENC_CHANGED << x << y << f;
             // std::cout << x << " " << y << std::endl;
             m_webServer.send(MSG_ID_ENC_CHANGED, x, y, f);
-
             break;
         }
         case MSG_ID_IMU_CHANGED: {
@@ -169,10 +181,15 @@ Controller::Controller(boost::asio::io_context &io_context)
         for (auto &waypoint : waypoints) writer << float(waypoint.x) << float(waypoint.y);
         m_webServer.send(buffer);
     });
+    m_navigator.onPlanUpdateRequest([this](const Navigator::Point &goal) {
+        m_rosBridge.plan(goal.x, goal.y);
+    });
+
+    // m_state estimator
+    m_stateEstimator.onPositionChanged(std::bind_front(&ROSbridge::publishTransform, &m_rosBridge));
 }
 
-void Controller::setTwist(double lin_vel, double ang_vel)
-{
+void Controller::setTwist(double lin_vel, double ang_vel) {
     const double wheel_base = 0.16; // расстояние между колёсами
     // lin_vel = 0.1;
     // ang_vel = 0.5;
@@ -185,7 +202,7 @@ void Controller::setTwist(double lin_vel, double ang_vel)
     constexpr double to_pwm = 4096.0 / 60.0;
     int16_t left_motor = left_speed * to_rpm * to_pwm;
     int16_t right_motor = right_speed * to_rpm * to_pwm;
-    std::cout << left_motor << " " << right_motor << std::endl;
+    // std::cout << left_motor << " " << right_motor << std::endl;
 
     // Отправляем PWM на реальный робот
     setMotorPwm(left_motor, right_motor);
@@ -204,5 +221,6 @@ void Controller::shutdown() {
     m_rosBridge.shutdown();
     m_webServer.shutdown();
     m_motionController.shutdown();
-    m_imu.shutdown();
+    m_slamLauncher.shutdown();
+    m_stateEstimator.shutdown();
 }

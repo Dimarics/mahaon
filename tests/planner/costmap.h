@@ -15,9 +15,10 @@ public:
     CostMap();
     inline void setGridMap(const std::shared_ptr<GridMap> &grid_map) {
         m_gridMap = grid_map;
+        updateCost();
     }
     void updateCost();
-    uint8_t getCost(uint32_t x, uint32_t y) const { return m_data[m_gridMap->getIndex(x, y)]; }
+    uint8_t &getCost(uint32_t x, uint32_t y) { return m_data[m_gridMap->getIndex(x, y)]; }
     void setCost(uint32_t x, uint32_t y, uint8_t cost) { m_data[m_gridMap->getIndex(x, y)] = cost; }
     std::vector<uint8_t> &cost() { return m_data; }
 

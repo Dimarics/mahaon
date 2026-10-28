@@ -104,24 +104,15 @@ void WebSocketInterface::addWaypoint(float x, float y, float yaw, bool relative)
 }
 
 void WebSocketInterface::clearWaypoints() {
-    QByteArray data;
-    QByteArrayWriter writer(data);
-    writer << MSG_ID_CLEAR_WAYPOINTS;
-    sendMessage(data);
+    sendMessage(QByteArray(1, MSG_ID_CLEAR_WAYPOINTS));
 }
 
 void WebSocketInterface::startBuildingMap() {
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << MSG_ID_START_BUILDING_MAP;
-    sendMessage(data);
+    sendMessage(QByteArray(1, MSG_ID_START_BUILDING_MAP));
 }
 
 void WebSocketInterface::finishBuildingMap() {
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
-    stream << MSG_ID_FINISH_BUILDING_MAP;
-    sendMessage(data);
+    sendMessage(QByteArray(1, MSG_ID_FINISH_BUILDING_MAP));
 }
 
 void WebSocketInterface::setMowingEnabled(bool enable) {

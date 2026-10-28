@@ -25,7 +25,8 @@ LidarMapViewer::LidarMapViewer(QQuickItem *parent)
     , m_webSocket(new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this))
     , m_targetPos(QPointF(NAN, NAN))
 {
-    setFillColor(QColor(90, 110, 100));
+    setFillColor(QColor(114, 138, 133));
+    // setFillColor(QColor(90, 110, 100));
     // setFillColor(QColor(127, 127, 127));
 
     // setMipmap(true);
@@ -207,15 +208,13 @@ void LidarMapViewer::paint(QPainter *painter) {
             // формула для доступа к ячейке: x + y * size_x
             const int8_t cell_data = uint8_t(m_map.data.at(x + y * m_map.width));
             QColor color;
-            if (cell_data == -1) {
-                color = QColor(90, 110, 100);
-            } else {
+            if (cell_data != -1) {
                 uint8_t gray = (1.f - float(cell_data) / 100.f) * 180.f;
                 color = QColor(gray, gray, gray);
+                painter->setBrush(color);
+                painter->drawRect(QRectF(x * m_map.cell_pixel_size, y * m_map.cell_pixel_size,
+                                         m_map.cell_pixel_size * 1.001, m_map.cell_pixel_size * 1.001));
             }
-            painter->setBrush(color);
-            painter->drawRect(QRectF(x * m_map.cell_pixel_size, y * m_map.cell_pixel_size,
-                                     m_map.cell_pixel_size * 1.001, m_map.cell_pixel_size * 1.001));
 
             // if (cell_data == 100) {
             //     const double mx = m_map.min_x + (x + 0.5) * m_map.resolution;

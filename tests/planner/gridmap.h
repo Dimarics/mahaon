@@ -33,6 +33,11 @@ public:
         double y = m_originY + (my + 0.5) * m_resolution;
         return {x, y};
     }
+    PointF mapToWorld(double mx, double my) const {
+        double x = (m_originX + (mx + 0.5) * m_resolution);
+        double y = m_originY + (my + 0.5) * m_resolution;
+        return {x, y};
+    }
     PointF mapToWorld(const Point &p) const {
         return mapToWorld(p.x, p.y);
     }
