@@ -48,11 +48,11 @@ public:
     }
 
 private:
-    const double kp_ang;
-    const double max_linear;
-    const double max_angular;
-    const double robot_radius;
-    const double safe_distance;
+    double _max_lin_vel;
+    double _max_ang_vel;
+    double _kp_lin;
+    double _kp_ang;
+    double _reach_distance;
 
     bool m_goalReached;
     Point m_pos;

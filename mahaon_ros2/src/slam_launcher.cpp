@@ -1,4 +1,5 @@
-#include "mahaon/slamlauncher.h"
+#include "mahaon/slam_launcher.h"
+#include "mahaon/app_config.h"
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/readable_pipe.hpp>
@@ -15,7 +16,7 @@ void SlamLauncher::start(Mode mode) {
     if (m_process && m_process->running()) return;
     if (mode == MAPPING) {
         m_slamLaunchFile = "online_sync_launch.py";
-        m_slamConfigurationFile = "slam_params_file:=/home/mes/ros2_ws/install/mahaon_ros2/share/mahaon_ros2/params/mapper_params.yaml";
+        m_slamConfigurationFile = "slam_params_file:=" + app_config::package_dir + "/params/mapper_params.yaml";
         boost::asio::co_spawn(m_ioContext, runSlam(), boost::asio::detached);
     }
 }
@@ -55,9 +56,9 @@ boost::asio::awaitable<void> SlamLauncher::runSlam() {
                 if (n) std::cout.write(buffer, n);
             }
         } catch (const std::exception& e) {
-            std::cout << "узел завершён: " << e.what() << std::endl;
+            std::cout << "[slam_launcher] узел завершён" << std::endl;
         }
     } catch (const std::exception& e) {
-        std::cout << "ros2 не выполнен" << std::endl;
+        std::cout << "[slam_launcher] ros2 не выполнен" << std::endl;
     }
 }

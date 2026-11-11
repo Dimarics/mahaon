@@ -1,7 +1,8 @@
 #ifndef PACKETASSEMBLER_H
 #define PACKETASSEMBLER_H
 
-#include <cstdint>
+#include <chrono>
+// #include <cstdint>
 // #include <iostream>
 #include <vector>
 #include <functional>
@@ -54,7 +55,10 @@ private:
     bool m_dataSizeRead;
     uint8_t m_dataSize;
     std::vector<uint8_t> m_data;
+    std::chrono::time_point<std::chrono::steady_clock> m_startTime;
     std::function<void(uint8_t, const std::vector<uint8_t>&)> m_packetAssembledCallback;
+
+    void reset();
 };
 
 template <typename Buffer>
@@ -69,7 +73,7 @@ public:
     void end() {
         uint8_t crc = 0;
         this->m_buffer.insert(this->m_buffer.begin() + 3, this->m_buffer.size() - 3);
-        for (size_t i = 2; i < this->m_buffer.size(); ++i) crc += this->m_buffer.at(i);
+        for (size_t i = 2; i < this->m_buffer.size(); ++i) crc += this->m_buffer[i];
         *this << crc;
     }
 };

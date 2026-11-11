@@ -1,6 +1,8 @@
 #ifndef ROSBRIDGE_H
 #define ROSBRIDGE_H
 
+#pragma once
+
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -11,6 +13,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
 #include <slam_toolbox/srv/serialize_pose_graph.hpp>
+#include <tf2_ros/static_transform_broadcaster.hpp>
 #include <tf2_ros/transform_broadcaster.hpp>
 #include <tf2_ros/buffer.hpp>
 #include <tf2_ros/transform_listener.hpp>
@@ -25,6 +28,7 @@ public:
     ~ROSbridge();
     void shutdown();
 
+    void publishScan(const sensor_msgs::msg::LaserScan::SharedPtr scan_msg);
     void publishTransform(double x, double y, double yaw);
     void addWaypoint(double x, double y, double yaw = 0.0);
     void plan(double x, double y, double yaw = 0.0);
@@ -33,7 +37,9 @@ public:
     inline void onScanReceived(const std::function<void(const sensor_msgs::msg::LaserScan::SharedPtr)> &callback) {
         m_scanReceivedCallback = callback;
     }
-    inline void onLaserOdomChanged(const std::function<void (double, double, double)> &callback) {
+    inline void onLaserOdomChanged(const std::function
+                                   <void (double, double, double, double, double, double, double)>
+                                   &callback) {
         m_laserOdomChangedCallback = callback;
     }
     inline void onPositionChanged(const std::function<void (double, double, double)> &callback) {
@@ -49,16 +55,23 @@ public:
         m_planChangedCallback = callback;
     }
 
+    static std::shared_ptr<rclcpp::Node> node() {
+        static auto ros_node = std::make_shared<rclcpp::Node>("mahaon");
+        return ros_node;
+    }
+    static rclcpp::Time timestamp() { return node()->now(); }
+    static rclcpp::Logger logger() { return node()->get_logger(); }
+
 private:
-    std::shared_ptr<rclcpp::Node> m_rosNode;
     boost::asio::io_context &m_ioContext;
     std::thread m_rosThread;
+    rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr m_laserScanPublisher;
     rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr m_navigateActionClient;
     rclcpp_action::Client<nav2_msgs::action::ComputePathToPose>::SharedPtr m_planActionClient;
     rclcpp::Client<slam_toolbox::srv::SerializePoseGraph>::SharedPtr m_saveMapClient;
 
     std::function<void(const sensor_msgs::msg::LaserScan::SharedPtr)> m_scanReceivedCallback;
-    std::function<void(double, double, double)> m_laserOdomChangedCallback;
+    std::function<void(double, double, double, double, double, double, double)> m_laserOdomChangedCallback;
     std::function<void(double, double, double)> m_positionChangedCallback;
     std::function<void(const nav_msgs::msg::OccupancyGrid::SharedPtr map)> m_mapUpdatedCallback;
     std::function<void(double, double)> m_cmdVelCallback;
@@ -68,8 +81,8 @@ private:
     std::shared_ptr<tf2_ros::TransformBroadcaster> m_tfBroadcaster;
     tf2_ros::Buffer m_tfBuffer;
     tf2_ros::TransformListener m_tfListener;
-    boost::asio::steady_timer m_tfTimer;
-    void tfPoll(const boost::system::error_code &ec);
+    boost::asio::steady_timer m_tfPollTimer;
+    void tfPoll(const boost::system::error_code &error_code);
 };
 
 

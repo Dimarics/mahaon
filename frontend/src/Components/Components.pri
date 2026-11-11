@@ -33,14 +33,12 @@ resources.files += \
 
 HEADERS += \
     $$PWD/filepicker.h \
-    $$PWD/firmwareloader.h \
     $$PWD/imageviewer.h \
     $$PWD/mousehandler.h \
     #$$PWD/windowcustomizer.h
 
 SOURCES += \
     $$PWD/filepicker.cpp \
-    $$PWD/firmwareloader.cpp \
     $$PWD/imageviewer.cpp \
     $$PWD/mousehandler.cpp \
     #$$PWD/windowcustomizer.cpp

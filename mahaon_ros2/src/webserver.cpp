@@ -40,13 +40,13 @@ net::awaitable<void> WebServer::do_listen(tcp::endpoint endpoint) {
         session->on_close([this](const std::shared_ptr<WebServerSession> &socket) {
             boost::asio::post(m_ioContext, [socket = std::move(socket), this] {
                 m_sessions.erase(socket);
-                std::cout << "Сессий осталось: " << m_sessions.size() << std::endl;
+                std::cout << "[WebServer] сессий осталось: " << m_sessions.size() << std::endl;
             });
         });
         session->onMessageReceived(m_messageReceivedCallback);
         // session->onMessageReceived([](std::vector<uint8_t>&&) { std::cout << "msg received" << std::endl; });
         m_sessions.insert(session);
-        std::cout << "Сессий: " << m_sessions.size() << std::endl;
+        std::cout << "[WebServer] активные сессии: " << m_sessions.size() << std::endl;
         session->run();
     }
 }

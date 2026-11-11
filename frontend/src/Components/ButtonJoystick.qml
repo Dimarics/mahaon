@@ -5,14 +5,18 @@ import QtQuick.Shapes
 Q.Item {
     id: root
     width: 120; height: 120
+    property alias leftButton: left_button
     property alias leftText: leftText.text
-    property alias leftStatePressed: left.pressed
+    property alias leftStatePressed: left_button.pressed
+    property alias rightButton: right_button
     property alias rightText: rightText.text
-    property alias rightStatePressed: right.pressed
+    property alias rightStatePressed: right_button.pressed
+    property alias topButton: top_button
     property alias topText: topText.text
-    property alias topStatePressed: top.pressed
+    property alias topStatePressed: top_button.pressed
+    property alias bottomButton: bottom_button
     property alias bottomText: bottomText.text
-    property alias bottomStatePressed: bottom.pressed
+    property alias bottomStatePressed: bottom_button.pressed
     signal leftPressed; signal leftReleased
     signal rightPressed; signal rightReleased
     signal topPressed; signal topReleased
@@ -61,9 +65,9 @@ Q.Item {
         horizontalAlignment: Text.AlignHCenter
     }
     JoystickButton {
-        id: left
+        id: left_button
         startAngle: 135
-        onPressed: leftPressed(); onReleased: leftReleased()
+        onPressed: root.leftPressed(); onReleased: root.leftReleased()
         JoystickText {
             id: leftText
             x: (root.width / 4 - implicitWidth) / 2
@@ -71,9 +75,9 @@ Q.Item {
         }
     }
     JoystickButton {
-        id: right
+        id: right_button
         startAngle: 315
-        onPressed: rightPressed(); onReleased: rightReleased()
+        onPressed: root.rightPressed(); onReleased: root.rightReleased()
         JoystickText {
             id: rightText
             x: root.width / 8 * 7 - implicitWidth / 2
@@ -82,9 +86,9 @@ Q.Item {
         }
     }
     JoystickButton {
-        id: top
+        id: top_button
         startAngle: 225
-        onPressed: topPressed(); onReleased: topReleased()
+        onPressed: root.topPressed(); onReleased: root.topReleased()
         JoystickText {
             id: topText
             y: (root.height / 4 - implicitHeight) / 2
@@ -92,9 +96,9 @@ Q.Item {
         }
     }
     JoystickButton {
-        id: bottom
+        id: bottom_button
         startAngle: 45
-        onPressed: bottomPressed(); onReleased: bottomReleased()
+        onPressed: root.bottomPressed(); onReleased: root.bottomReleased()
         JoystickText {
             id: bottomText
             y: root.height / 8 * 7 - implicitHeight / 2

@@ -1,12 +1,13 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "mahaon/imu.h"
+#include "mahaon/laser_scan_matcher.h"
+#include "mahaon/lidar_driver.h"
 #include "mahaon/navigator.h"
 #include "mahaon/packetassembler.h"
 #include "mahaon/rosbridge.h"
 #include "mahaon/serialport.h"
-#include "mahaon/slamlauncher.h"
+#include "mahaon/slam_launcher.h"
 #include "mahaon/stateestimator.h"
 #include "mahaon/webserver.h"
 #include <boost/process/v2/process.hpp>
@@ -45,6 +46,8 @@ public:
         // debug
         MSG_ID_ENC_CHANGED,
         MSG_ID_IMU_CHANGED,
+        MSG_ID_LIDAR_COVARIANCE_CHANGED,
+        MSG_ID_SET_IMU_WEIGHT
     };
     struct Position {
         double x = 0;
@@ -57,12 +60,18 @@ public:
     void shutdown();
 
 private:
+    double _wheel_base;
+    double _wheel_d;
+    double _k_pwm;
+
     Position m_pos;
     boost::asio::io_context m_ioContext;
     ROSbridge m_rosBridge;
     WebServer m_webServer;
     SerialPort m_motionController;
     PacketAssembler m_motionControllerPacketAssembler;
+    LidarDriver m_lidarDriver;
+    LaserScanMatcher m_laserScanMatcher;
     Navigator m_navigator;
     SlamLauncher m_slamLauncher;
     StateEstimator m_stateEstimator;

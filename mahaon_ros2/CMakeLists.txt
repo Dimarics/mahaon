@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 if(UNIX)
     find_package(ament_cmake REQUIRED)
+    find_package(ament_index_cpp REQUIRED)
+    # find_package(csm REQUIRED)
     find_package(nav_msgs REQUIRED)
     find_package(nav2_msgs REQUIRED)
     find_package(rclcpp REQUIRED)
@@ -13,8 +15,10 @@ if(UNIX)
     find_package(tf2 REQUIRED)
     find_package(tf2_geometry_msgs REQUIRED)
     find_package(tf2_ros REQUIRED)
+    find_package(fusioncore_core REQUIRED)
     find_package(slam_toolbox REQUIRED)
     find_package(Boost REQUIRED CONFIG COMPONENTS system)
+    find_package(ydlidar_sdk REQUIRED)
 endif()
 
 add_subdirectory(bno085)
@@ -25,16 +29,18 @@ include_directories(
 )
 
 add_executable(mahaon
+    src/app_config.cpp
     src/controller.cpp
     src/main.cpp
-    # src/laser_scan_matcher.cpp
+    src/laser_scan_matcher.cpp
+    src/lidar_driver.cpp
     src/imu.cpp
     src/navigator.cpp
+    src/packetassembler.cpp
     src/serialport.cpp
-    src/slamlauncher.cpp
+    src/slam_launcher.cpp
     src/stateestimator.cpp
     src/rosbridge.cpp
-    src/packetassembler.cpp
     src/webserversession.cpp
     src/webserver.cpp
 )
@@ -46,9 +52,10 @@ if(WIN32)
         D:/Programs/lib
         D:/Programs/lib/ros2/include
         D:/Programs/lib/boost_1_91_0
-        D:/Programs/lib/csm/sm
+        D:/Programs/lib/csm/include
         D:/Programs/lib/navigation2
         D:/Programs/lib/fusioncore/fusioncore_core/include
+        D:/Programs/YDLidar-SDK
     )
     target_link_libraries(mahaon PRIVATE ws2_32 mswsock)
 elseif(UNIX)
@@ -56,15 +63,20 @@ elseif(UNIX)
     # target_link_libraries(hobot_sl PRIVATE ${Boost_INCLUDE_DIR})
 
     target_link_libraries(mahaon PRIVATE
+        # ${csm_TARGETS}
+        "/usr/local/lib/libcsm-static.a"
+        ${ament_index_cpp_TARGETS}
+        ${fusioncore_core_TARGETS}
+        ${nav_msgs_TARGETS}
+        ${nav2_msgs_TARGETS}
         ${rclcpp_TARGETS}
         ${rclcpp_action_TARGETS}
-        ${nav_msgs_TARGETS}
         ${sensor_msgs_TARGETS}
+        ${slam_toolbox_TARGETS}
         ${tf2_TARGETS}
         ${tf2_ros_TARGETS}
         ${tf2_geometry_msgs_TARGETS}
-        ${nav2_msgs_TARGETS}
-        ${slam_toolbox_TARGETS}
+        ${YDLIDAR_SDK_LIBRARIES}
     )
 
     install(TARGETS mahaon DESTINATION lib/${PROJECT_NAME})

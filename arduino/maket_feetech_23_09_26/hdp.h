@@ -1,5 +1,3 @@
-#include "datastream.h"
-
 class HDP {
 public:
   HDP() : m_checkPacket(true), m_serial(nullptr) {

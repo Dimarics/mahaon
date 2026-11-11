@@ -1,4 +1,5 @@
 #include "mahaon/controller.h"
+#include "mahaon/app_config.h"
 #include "mahaon/buf_datastream.h"
 #include <boost/process/v2/stdio.hpp>
 
@@ -7,8 +8,20 @@ Controller::Controller(boost::asio::io_context &io_context)
     , m_webServer(io_context, 8081)
     , m_motionController(io_context, "/dev/ttyAMA0")
     , m_slamLauncher(io_context)
+    , m_lidarDriver(io_context)
     , m_stateEstimator(io_context)
 {
+    // config
+    YAML::Node config = app_config::params["vehicle"];
+    if (!config) {
+        std::cout << "[controller] конфигурация vehicle не найдена" << std::endl;
+        return;
+    }
+    _wheel_base = config["wheel_base"].as<double>(1.0);
+    _wheel_d    = config["wheel_d"].as<double>(1.0);
+    _k_pwm      = config["k_pwm"].as<double>(1.0);
+
+    // ros bridge
     m_rosBridge.onScanReceived([this](const sensor_msgs::msg::LaserScan::SharedPtr laser_scan) {
         std::vector<uint8_t> buffer;
         BufWriter writer(buffer);
@@ -21,6 +34,7 @@ Controller::Controller(boost::asio::io_context &io_context)
         }
         m_webServer.send(buffer);
         m_navigator.updateObstacles(laser_scan);
+        // m_laserScanMatcher.newScan(laser_scan);
     });
     m_rosBridge.onLaserOdomChanged(std::bind_front(&StateEstimator::setLaserOdom, &m_stateEstimator));
     m_rosBridge.onPositionChanged([this](double x, double y, double yaw) {
@@ -66,6 +80,21 @@ Controller::Controller(boost::asio::io_context &io_context)
         BufReader reader(msg);
         reader >> cmd;
         switch (cmd) {
+        case MSG_ID_SET_MOVE_PARAMS: {
+            uint16_t stick_1_x, stick_1_y, stick_2_x, stick_2_y;
+            reader >> stick_1_x >> stick_1_y >> stick_2_x >> stick_2_y;
+            // std::cout << "[сontroller] stick_1_x: "
+            //           << stick_1_x << ", stick_1_y: " << stick_1_y << ", stick_2_x: "
+            //           << stick_2_x << ", stick_2_y: " << stick_2_y << std::endl;
+            std::vector<uint8_t> data;
+            PacketBuilder packetBuilder(data);
+            packetBuilder.begin();
+            packetBuilder << MSG_ID_SET_MOVE_PARAMS << stick_1_x << stick_1_y << stick_2_x << stick_2_y;
+            packetBuilder.end();
+
+            m_motionController.send(data);
+            break;
+        }
         case MSG_ID_SET_MOTOR_PWM: {
             int16_t left_motor_val, right_motor_val;
             reader >> left_motor_val >> right_motor_val;
@@ -76,7 +105,7 @@ Controller::Controller(boost::asio::io_context &io_context)
         case MSG_ID_SET_MOTOR_SPEEDS: {
             float lin_vel, ang_vel;
             reader >> lin_vel >> ang_vel;
-            // std::cout << left_motor_val << " " << right_motor_val << std::endl;
+            // std::cout << "[сontroller] lin_vel: " << lin_vel << ", ang_vel: " << ang_vel << std::endl;
             if (m_navigator.goalReached()) setTwist(lin_vel, ang_vel);
             break;
         }
@@ -95,8 +124,8 @@ Controller::Controller(boost::asio::io_context &io_context)
             }
             // m_goalReached = false;
             // m_rosBridge.addWaypoint(target_x, target_y, yaw);
-            // m_navigator.setWaypoint(target_x, target_y);
-            m_rosBridge.plan(target_x, target_y, yaw);
+            m_navigator.setWaypoint(target_x, target_y);
+            // m_rosBridge.plan(target_x, target_y, yaw);
             break;
         }
         case MSG_ID_ADD_WAYPOINT: {
@@ -126,13 +155,19 @@ Controller::Controller(boost::asio::io_context &io_context)
             m_slamLauncher.finish();
             break;
         }
+        case MSG_ID_SET_IMU_WEIGHT: {
+            float weight;
+            reader >> weight;
+            m_stateEstimator.setImuWeight(weight);
+            break;
+        }
         default:
-            std::cout << "неизвестный код функции: " << uint16_t(cmd) << std::endl;
+            std::cout << "[controller] неизвестный код функции: " << uint16_t(cmd) << std::endl;
             break;
         }
     });
 
-    // port
+    // motion controller
     // m_motionController.onDataReceived(std::bind_front(&PacketAssembler::addData, &m_motionControllerPacketAssembler));
     m_motionController.onDataReceived(std::bind_front(&PacketAssembler::addData, &m_motionControllerPacketAssembler));
     m_motionControllerPacketAssembler.onPacketAssembled([this](uint8_t cmd, const std::vector<uint8_t> &data) {
@@ -167,9 +202,28 @@ Controller::Controller(boost::asio::io_context &io_context)
             break;
         }
         default:
-            std::cout << "неизвестный код функции: " << uint16_t(cmd) << std::endl;
+            std::cout << "[сontroller] неизвестный код функции: " << uint16_t(cmd) << std::endl;
             break;
         }
+    });
+
+    // lidar_driver
+    m_lidarDriver.onNewScanCallback([this](const std::shared_ptr<LaserScan> &scan) {
+        m_laserScanMatcher.newScan(scan);
+    });
+    m_lidarDriver.onNewResampledScanCallback([this](const sensor_msgs::msg::LaserScan::SharedPtr scan) {
+        // m_laserScanMatcher.newScan(scan);
+        m_rosBridge.publishScan(scan);
+    });
+
+    // scan_matcher
+    m_laserScanMatcher.onOdomChanged([this](const rclcpp::Time &stamp, double x, double y, double yaw) {
+        // RCLCPP_INFO(ROSbridge::logger(), "pos: %.2f, %.2f, %.2f", x, y, yaw / M_PI * 180.0);
+        m_stateEstimator.setLaserOdom(stamp.seconds(), x, y, yaw, 0, 0, 0);
+    });
+    m_laserScanMatcher.onCovarianceEllipseChanged([this](double a, double b, double phi) {
+        // RCLCPP_INFO(ROSbridge::logger(), "cov: %.2f, %.2f, %.2f", a, b, phi / M_PI * 180.0);
+        m_webServer.send(MSG_ID_LIDAR_COVARIANCE_CHANGED, float(a), float(b), float(phi));
     });
 
     // навигатор
@@ -190,21 +244,12 @@ Controller::Controller(boost::asio::io_context &io_context)
 }
 
 void Controller::setTwist(double lin_vel, double ang_vel) {
-    const double wheel_base = 0.16; // расстояние между колёсами
-    // lin_vel = 0.1;
-    // ang_vel = 0.5;
-
-    double left_speed  = lin_vel - ang_vel * wheel_base / 2.0;
-    double right_speed = lin_vel + ang_vel * wheel_base / 2.0;
-
-    // Преобразуем скорости колес в PWM
-    constexpr double to_rpm = 60.0 / (M_PI * 0.066);
-    constexpr double to_pwm = 4096.0 / 60.0;
-    int16_t left_motor = left_speed * to_rpm * to_pwm;
-    int16_t right_motor = right_speed * to_rpm * to_pwm;
+    const double left_speed  = lin_vel - ang_vel * _wheel_base / 2.0;
+    const double right_speed = lin_vel + ang_vel * _wheel_base / 2.0;
+    const double to_rpm = 60.0 / (M_PI * _wheel_d);
+    const int16_t left_motor = left_speed * to_rpm * _k_pwm;
+    const int16_t right_motor = right_speed * to_rpm * _k_pwm;
     // std::cout << left_motor << " " << right_motor << std::endl;
-
-    // Отправляем PWM на реальный робот
     setMotorPwm(left_motor, right_motor);
 }
 
@@ -212,7 +257,7 @@ void Controller::setMotorPwm(int16_t left_motor, int16_t right_motor) {
     std::vector<uint8_t> msg;
     PacketBuilder packetBuilder(msg);
     packetBuilder.begin();
-    packetBuilder << MSG_ID_SET_MOTOR_SPEEDS << left_motor << right_motor;
+    packetBuilder << MSG_ID_SET_MOTOR_PWM << left_motor << right_motor;
     packetBuilder.end();
     m_motionController.send(msg);
 }

@@ -4,14 +4,24 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch_ros.actions import LifecycleNode
 
 def generate_launch_description():
     mahaon_pkg_dir = get_package_share_directory('mahaon_ros2')
 
     # запуск YDlidar
     ydlidar_pkg_dir = get_package_share_directory('ydlidar_ros2_driver')
-    ydlidar_launch_file = os.path.join(ydlidar_pkg_dir, 'launch', 'x3_ydlidar_launch.py')
-    launch_ydlidar = IncludeLaunchDescription(PythonLaunchDescriptionSource(ydlidar_launch_file))
+    ydlidar_params_file = os.path.join(mahaon_pkg_dir, 'params', 'ydlidar_x3.yaml')
+    ydlidar_launch = LifecycleNode(
+        package='ydlidar_ros2_driver',
+        executable='ydlidar_ros2_driver_node',
+        name='ydlidar_ros2_driver_node',
+        namespace='/',
+        output='screen',
+        emulate_tty=True,
+        parameters=[ydlidar_params_file],
+        # parameters=['/home/mes/ros2_ws/src/mahaon_ros2/params/ydlidar_x3.yaml'],
+    )
 
     # запуск static_transform_publisher
     tf2_node = Node(
@@ -56,9 +66,9 @@ def generate_launch_description():
     
     ###
     return LaunchDescription([
-        launch_ydlidar,
-        tf2_node,
-        scan_matcher,
+        # ydlidar_launch,
+        # tf2_node,
+        # scan_matcher,
         # launch_slam_toolbox,
         mahaon
     ])

@@ -42,6 +42,8 @@ public:
         // debug
         MSG_ID_ENC_CHANGED,
         MSG_ID_IMU_CHANGED,
+        MSG_ID_LIDAR_COVARIANCE_CHANGED,
+        MSG_ID_SET_IMU_WEIGHT
     };
     WebSocketInterface(QObject *parent = nullptr);
     Q_INVOKABLE inline bool areaContainsPoint(const QPointF &pos, const QList<QPointF> &coords) {
@@ -68,6 +70,8 @@ public slots:
     Q_INVOKABLE void finishBuildingMap();
     Q_INVOKABLE void setMowingEnabled(bool enable);
 
+    Q_INVOKABLE void setImuWeight(float weight);
+
 private slots:
     void messageHandler(const QByteArray &msg);
 
@@ -85,6 +89,7 @@ signals:
     // void mapCellPositionChanged(const QPoint &cellPos);
     void encPositionChanged(double x, double y, double yaw);
     void imuPositionChanged(double x, double y, double yaw);
+    void lidarCovarianceChanged(float a, float b, float phi);
 };
 
 #endif // WEBSOCKETINTERFACE_H

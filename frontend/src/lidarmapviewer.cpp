@@ -13,17 +13,19 @@ LidarMapViewer::LidarMapViewer(QQuickItem *parent)
     , m_relative(false)
     , m_zoom(1.0)
     , m_yaw(0)
+    , m_currentPos(QPointF(0, 0))
+    , m_targetPos(QPointF(NAN, NAN))
     , m_map {
-          .width = 0,
-          .height = 0,
-          .origin_x = 0.0f,
-          .origin_y = 0.0f,
-          .resolution = 0.0f,
+          .width = 200,
+          .height = 200,
+          .origin_x = -10.0f,
+          .origin_y = -10.0f,
+          .resolution = 0.1f,
           .cell_pixel_size = 0.0,
           .data = {}
         }
     , m_webSocket(new QWebSocket(QString(), QWebSocketProtocol::VersionLatest, this))
-    , m_targetPos(QPointF(NAN, NAN))
+    , m_covEllipse{0, 0, 0}
 {
     setFillColor(QColor(114, 138, 133));
     // setFillColor(QColor(90, 110, 100));
@@ -65,7 +67,6 @@ LidarMapViewer::LidarMapViewer(QQuickItem *parent)
     // });
     connect(interface, &WebSocketInterface::localPositionChanged, this, [this](float x, float y, float yaw) {
         // qDebug() << yaw / M_PI * 180.0;
-        // m_yaw = yaw / M_PI * 180.0;
         m_yaw = yaw / M_PI * 180.0;
         m_currentPos = QPointF(x, y);
         m_trajectory << QPointF(x, y);
@@ -112,6 +113,13 @@ LidarMapViewer::LidarMapViewer(QQuickItem *parent)
         m_waypoints << waypoints;
     });
     // ---------------------------------------------------
+    connect(interface, &WebSocketInterface::lidarCovarianceChanged, this, [this](float a, float b, float phi) {
+        // qDebug() << a << b << phi / M_PI * 180.0;
+        m_covEllipse.a = a;
+        m_covEllipse.b = b;
+        m_covEllipse.phi = phi / M_PI * 180.0;
+        update();
+    });
 }
 
 void LidarMapViewer::setScanVisible(bool visible) {
@@ -167,7 +175,6 @@ void LidarMapViewer::setZoom(qreal zoom) {
 }
 
 void LidarMapViewer::paint(QPainter *painter) {
-    if (m_map.data.isEmpty()) return;
 
     if (m_keepDevicePixelRatio) {
         setTextureSize(QSize(width(), height()));
@@ -176,7 +183,6 @@ void LidarMapViewer::paint(QPainter *painter) {
     }
     painter->translate(width(), 0.0);
     painter->scale(-1.0, 1.0);
-
 
     // size_x, size_y наоборот, так как карта повёрнута на 90 градусов
     // const qreal map_ratio = qreal(m_map.height) / qreal(m_map.width);
@@ -202,27 +208,29 @@ void LidarMapViewer::paint(QPainter *painter) {
     painter->setPen(Qt::NoPen);
     // painter->scale(-1.0, 1.0);
 
-    // painter->drawPoints(m_scanPoints);
-    for (uint32_t x = 0; x < m_map.width; ++x) {
-        for (uint32_t y = 0; y < m_map.height; ++y) {
-            // формула для доступа к ячейке: x + y * size_x
-            const int8_t cell_data = uint8_t(m_map.data.at(x + y * m_map.width));
-            QColor color;
-            if (cell_data != -1) {
-                uint8_t gray = (1.f - float(cell_data) / 100.f) * 180.f;
-                color = QColor(gray, gray, gray);
-                painter->setBrush(color);
-                painter->drawRect(QRectF(x * m_map.cell_pixel_size, y * m_map.cell_pixel_size,
-                                         m_map.cell_pixel_size * 1.001, m_map.cell_pixel_size * 1.001));
-            }
 
-            // if (cell_data == 100) {
-            //     const double mx = m_map.min_x + (x + 0.5) * m_map.resolution;
-            //     const double my = m_map.min_y + (y + 0.5) * m_map.resolution;
-            //     QPointF p = QPointF(mx - m_map.min_x, my - m_map.min_y) / m_map.resolution * cell_size;
-            //     painter->setBrush(Qt::red);
-            //     painter->drawEllipse(p, 3, 3);
-            // }
+    if (!m_map.data.isEmpty()) {
+        // painter->drawPoints(m_scanPoints);
+        for (uint32_t x = 0; x < m_map.width; ++x) {
+            for (uint32_t y = 0; y < m_map.height; ++y) {
+                // формула для доступа к ячейке: x + y * size_x
+                const int8_t cell_data = uint8_t(m_map.data.at(x + y * m_map.width));
+                QColor color;
+                if (cell_data != -1) {
+                    uint8_t gray = (1.f - float(cell_data) / 100.f) * 180.f;
+                    color = QColor(gray, gray, gray);
+                    painter->setBrush(color);
+                    painter->drawRect(QRectF(x * m_map.cell_pixel_size, y * m_map.cell_pixel_size,
+                                             m_map.cell_pixel_size * 1.001, m_map.cell_pixel_size * 1.001));
+                }
+                // if (cell_data == 100) {
+                //     const double mx = m_map.min_x + (x + 0.5) * m_map.resolution;
+                //     const double my = m_map.min_y + (y + 0.5) * m_map.resolution;
+                //     QPointF p = QPointF(mx - m_map.min_x, my - m_map.min_y) / m_map.resolution * cell_size;
+                //     painter->setBrush(Qt::red);
+                //     painter->drawEllipse(p, 3, 3);
+                // }
+            }
         }
     }
 
@@ -230,26 +238,20 @@ void LidarMapViewer::paint(QPainter *painter) {
 
     // отрисовка траектории
     if (m_trajectoryVisible) {
-        painter->setPen(QPen(Qt::red, 2.0));
-        for (qsizetype i = 1; i < m_encTrajectory.size(); ++i) {
-            // QPointF p1 = (m_encTrajectory.at(i-1) - QPointF(m_map.origin_x, m_map.origin_y)) / m_map.resolution * cell_size;
-            // QPointF p2 = (m_encTrajectory.at( i ) - QPointF(m_map.origin_x, m_map.origin_y)) / m_map.resolution * cell_size;
-            QPointF p1 = m_map.metersToPixels(m_encTrajectory.at(i-1));
-            QPointF p2 = m_map.metersToPixels(m_encTrajectory.at( i ));
-            painter->drawLine(p1, p2);
-        }
+        // painter->setPen(QPen(Qt::red, 2.0));
+        // for (qsizetype i = 1; i < m_encTrajectory.size(); ++i) {
+        //     QPointF p1 = m_map.metersToPixels(m_encTrajectory.at(i-1));
+        //     QPointF p2 = m_map.metersToPixels(m_encTrajectory.at( i ));
+        //     painter->drawLine(p1, p2);
+        // }
         painter->setPen(QPen(Qt::blue, 2.0));
         for (qsizetype i = 1; i < m_trajectory.size(); ++i) {
-            // QPointF p1 = (m_trajectory.at(i-1) - QPointF(m_map.origin_x, m_map.origin_y)) / m_map.resolution * m_map.cell_pixel_size;
-            // QPointF p2 = (m_trajectory.at( i ) - QPointF(m_map.origin_x, m_map.origin_y)) / m_map.resolution * m_map.cell_pixel_size;
             QPointF p1 = m_map.metersToPixels(m_trajectory.at(i-1));
             QPointF p2 = m_map.metersToPixels(m_trajectory.at( i ));
             painter->drawLine(p1, p2);
         }
         painter->setPen(QPen(Qt::green, 2.0));
         for (qsizetype i = 1; i < m_waypoints.size(); ++i) {
-            // QPointF p1 = (m_waypoints.at(i-1) - QPointF(m_map.origin_x, m_map.origin_y)) / m_map.resolution * cell_size;
-            // QPointF p2 = (m_waypoints.at( i ) - QPointF(m_map.origin_x, m_map.origin_y)) / m_map.resolution * cell_size;
             QPointF p1 = m_map.metersToPixels(m_waypoints.at(i-1));
             QPointF p2 = m_map.metersToPixels(m_waypoints.at( i ));
             painter->drawLine(p1, p2);
@@ -263,7 +265,15 @@ void LidarMapViewer::paint(QPainter *painter) {
         painter->drawEllipse(m_map.metersToPixels(m_targetPos), 3, 3);
     }
     painter->translate(pos);
-    painter->rotate(m_yaw);
+    painter->rotate(m_yaw + m_covEllipse.phi);
+
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(200, 0, 0));
+    qreal a = m_covEllipse.a / m_map.resolution * m_map.cell_pixel_size * 10;
+    qreal b = m_covEllipse.b / m_map.resolution * m_map.cell_pixel_size * 10;
+    painter->drawEllipse(QRectF(-a, -b, a * 2.f, b * 2.0));
+
+    painter->rotate(-m_covEllipse.phi);
 
     // отрисовка скана
     if (m_scanVisible) {

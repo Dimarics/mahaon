@@ -48,7 +48,7 @@ net::awaitable<void> WebServerSession::do_accept() {
         // Только теперь запускаем цикл чтения
         net::co_spawn(m_stream.get_executor(), read_loop(), net::detached);
     } catch (const std::exception& e) {
-        std::cout << "handshake failed: " << e.what() << std::endl;
+        std::cout << "[WebServerSession] handshake failed" << std::endl;
         m_onCloseCallback(shared_from_this());
     }
 }
@@ -67,7 +67,7 @@ net::awaitable<void> WebServerSession::read_loop() {
             buffer.consume(buffer.size());
         }
     } catch (const std::exception& e) {
-        std::cout << "disconnect: " << e.what() << std::endl;
+        std::cout << "[WebServerSession] сессия завершена" << std::endl;
         m_onCloseCallback(shared_from_this());
     }
 }
@@ -87,7 +87,7 @@ net::awaitable<void> WebServerSession::do_write() {
         }
         m_isWriting = false;
     } catch (const std::exception& e) {
-        std::cout << "Запись невозможна: " << e.what() << std::endl;
+        std::cout << "[WebServerSession] запись невозможна" << std::endl;
         // on_close(shared_from_this());
     }
 }

@@ -122,13 +122,13 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) {
 
     struct i2c_msg msg = {
         .addr = address,
-                .flags = I2C_M_RD,
-                .len = static_cast<uint16_t>(quantity),
-                .buf = _rxBuffer.data()
+        .flags = I2C_M_RD,
+        .len = static_cast<uint16_t>(quantity),
+        .buf = _rxBuffer.data()
     };
     struct i2c_rdwr_ioctl_data transfer = {
         .msgs = &msg,
-                .nmsgs = 1
+        .nmsgs = 1
     };
 
     int ret = ioctl(_fd, I2C_RDWR, &transfer);
@@ -208,14 +208,14 @@ void TwoWire::setClock(uint32_t frequency) {
 // #if defined(__arm__) || defined(__aarch64__)
 //     struct i2c_msg msg = {
 //         .addr = _address,
-//                 .flags = 0,                  // Запись
-//                 .len = static_cast<uint16_t>(length),
-//                 .buf = const_cast<uint8_t*>(data)
+//         .flags = 0,                  // Запись
+//         .len = static_cast<uint16_t>(length),
+//         .buf = const_cast<uint8_t*>(data)
 //     };
 
 //     struct i2c_rdwr_ioctl_data transfer = {
 //         .msgs = &msg,
-//                 .nmsgs = 1
+//         .nmsgs = 1
 //     };
 
 //     int ret = ioctl(_fd, I2C_RDWR, &transfer);
@@ -232,14 +232,14 @@ void TwoWire::setClock(uint32_t frequency) {
 // #if defined(__arm__) || defined(__aarch64__)
 //     struct i2c_msg msg = {
 //         .addr = _address,
-//                 .flags = I2C_M_RD,           // Чтение
-//                 .len = static_cast<uint16_t>(length),
-//                 .buf = buffer
+//         .flags = I2C_M_RD,           // Чтение
+//         .len = static_cast<uint16_t>(length),
+//         .buf = buffer
 //     };
 
 //     struct i2c_rdwr_ioctl_data transfer = {
 //         .msgs = &msg,
-//                 .nmsgs = 1
+//         .nmsgs = 1
 //     };
 
 //     int ret = ioctl(_fd, I2C_RDWR, &transfer);

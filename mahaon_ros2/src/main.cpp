@@ -1,10 +1,12 @@
 #include <rclcpp/utilities.hpp>
 #include <boost/asio/io_context.hpp>
+#include "mahaon/app_config.h"
 #include "mahaon/controller.h"
 
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
     boost::asio::io_context io_context;
+    app_config::setup();
     Controller controller(io_context);
     rclcpp::on_shutdown([&controller] {
         controller.shutdown();

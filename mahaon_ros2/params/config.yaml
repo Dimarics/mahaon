@@ -1,0 +1,31 @@
+vehicle:
+  robot_radius: 0.15
+  wheel_base: 0.16
+  wheel_d: 0.066
+  max_linear_velocity: 0.15
+  max_angular_velocity: 80
+  k_pwm: 68.27
+  kp_lin: 1.0
+  kp_ang: 1.2
+  reach_distance: 0.2
+
+lidar_driver:
+  port: /dev/ttyAMA2
+  baudrate: 115200
+  lidar_type: 1
+  device_type: 0
+  sample_rate: 3
+  abnormal_check_count: 4
+  resolution_fixed: true
+  reversion: false
+  inverted: true
+  auto_reconnect: true
+  isSingleChannel: true
+  intensity: false
+  support_motor_dtr: false
+  angle_max: 180.0
+  angle_min: -180.0
+  range_max: 8.0
+  range_min: 0.12
+  frequency: 10.0
+  invalid_range_is_inf: false

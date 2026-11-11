@@ -17,7 +17,7 @@ class AppGlobal : public QObject
 
 public:
     AppGlobal();
-    static inline QString tempLocation() { return QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/Hobots/"; }
+    static inline QString tempLocation() { return QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/mahaon/"; }
     static inline QString appDataLocation() { return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/"; }
     static inline AppGlobal* instance() { static AppGlobal *instance = new AppGlobal; return instance; };
     static inline AppGlobal* qmlInstance(QQmlEngine*, QJSEngine*) { return instance(); }
@@ -32,9 +32,12 @@ public:
 
 private:
     QObject *m_interface;
+    bool eventFilter(QObject *target, QEvent *event) override;
 
 signals:
     void interfaceChanged();
+    void keyPressed(int key);
+    void keyReleased(int key);
 };
 
 #endif // APPBACKEND_H

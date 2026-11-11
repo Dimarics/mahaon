@@ -23,7 +23,7 @@ ros2 topic echo /odom | grep -E "position|orientation|x|y|z|w|twist"
 ros2 topic echo /odom --once --field pose
 
 
-# Активация COM-порта
+# активация COM-порта
 sudo raspi-config -> interface options -> serial port -> no -> yes
 
 # Запуск точки доступа
@@ -39,12 +39,12 @@ nmcli connection show - список сетей
 sudo nmcli connection up <имя сети>
 sudo nmcli connection up netplan-wlan0-Bitrace49
 
-# Автозапуск
+# автозапуск
 поместить файл launch_server.service в /etc/systemd/system
 1) sudo mv launch_server.service /etc/systemd/system/
 2) sudo systemctl enable launch_server
 
-# Копирование системы
+# копирование системы
 1) wget -O image-backup https://raw.githubusercontent.com/raspberrypi/documentation/develop/documentation/asciidoc/computers/os/scripts/image-backup
 2) sudo chmod +x image-backup
 
@@ -59,5 +59,6 @@ sudo dd if=/dev/sde of=/mnt/d/img/phoenix.img bs=4M status=progress conv=fsync
 2) cd rpi-clone
 3) sudo cp rpi-clone* /usr/local/sbin/
 4) sudo rpi-clone sda -v
+5) найти с помощью команды blkid и заменить id загрузочного раздела на новой флешке
 
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {frame_id: 'map'}, pose: {position: {x: 1.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}" --feedback

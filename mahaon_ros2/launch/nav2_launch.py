@@ -64,9 +64,9 @@ def generate_launch_description():
     
     ###
     return LaunchDescription([
-        ydlidar_launch,
-        tf2_node,
-        scan_matcher,
-        nav2_bringup_launch,
-        mahaon
+        # ydlidar_launch,
+        # tf2_node,
+        # scan_matcher,
+        mahaon,
+        nav2_bringup_launch
     ])

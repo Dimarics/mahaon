@@ -53,6 +53,8 @@ private:
             return pixels * resolution / cell_pixel_size + QPointF(origin_x, origin_y);
         }
     };
+    struct CovarianceEllipse { float a, b, phi; };
+
     bool m_keepDevicePixelRatio;
     bool m_scanVisible;
     bool m_trajectoryVisible;
@@ -61,14 +63,16 @@ private:
     qreal m_zoom;
     qreal m_yaw;
     QPointF m_currentPos;
+    QPointF m_targetPos;
     OccupancyGridMap m_map;
+    QWebSocket *m_webSocket;
+
     QList<QPointF> m_trajectory;
     QList<QPointF> m_encTrajectory;
     QList<QPointF> m_waypoints;
     QList<QPointF> m_scan;
-    QWebSocket *m_webSocket;
+    CovarianceEllipse m_covEllipse;
 
-    QPointF m_targetPos;
     QTransform m_painterTransform;
 
     void paint(QPainter *painter) override;

@@ -1,5 +1,5 @@
 #include "mahaon/packetassembler.h"
-// #include <iostream>
+#include <iostream>
 
 PacketAssembler::PacketAssembler()
     : m_startByteFirstRead(0)
@@ -15,16 +15,22 @@ void PacketAssembler::addData(const std::vector<uint8_t> &data) {
         if (!m_startByteFirstRead) {
             if (byte == 0xFF) {
                 m_startByteFirstRead = true;
+                m_startTime = std::chrono::steady_clock::now();
                 // std::cout << "m_startByteFirstRead" << std::endl;
             }
             continue;
+        }
+        if (std::chrono::duration_cast<std::chrono::milliseconds>
+                (std::chrono::steady_clock::now() - m_startTime).count() > 1000) {
+            reset();
+            std::cout << "[PacketAssembler] timeout" << std::endl;
         }
         if (!m_startByteSecondRead) {
             if (byte == 0xFF) {
                 m_startByteSecondRead = true;
                 // std::cout << "m_startByteSecondRead" << std::endl;
             } else {
-                m_startByteFirstRead = false;
+                reset();
             }
             continue;
         }
@@ -53,10 +59,13 @@ void PacketAssembler::addData(const std::vector<uint8_t> &data) {
         } else {
             // std::cout << "Ошибка контрольной суммы" << std::endl;
         }
-        m_startByteFirstRead = false;
-        m_startByteSecondRead = false;
-        m_functionCodeRead = false;
-        m_dataSizeRead = false;
-        m_data.clear();
+        reset();
     }
+}
+
+void PacketAssembler::reset() {
+    m_startByteFirstRead = false;
+    m_startByteSecondRead = false;
+    m_functionCodeRead = false;
+    m_dataSizeRead = false;
 }

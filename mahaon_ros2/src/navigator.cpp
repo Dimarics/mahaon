@@ -1,17 +1,25 @@
 #include "mahaon/navigator.h"
+#include "mahaon/app_config.h"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 Navigator::Navigator()
-    : kp_ang(1.2)
-    , max_linear(0.15)
-    , max_angular(1.0)
-    , robot_radius(0.15)
-    , safe_distance(0.2)
-
-    , m_goalReached(true)
+    : m_goalReached(true)
     , m_pos(0, 0)
-    , m_laserScan(nullptr) { }
+    , m_laserScan(nullptr)
+{
+    YAML::Node config = app_config::params["vehicle"];
+    if (!config) {
+        std::cout << "[navigator] конфигурация vehicle не найдена" << std::endl;
+        return;
+    }
+    _max_lin_vel   = config["max_linear_velocity"].as<double>(0.0);
+    _max_ang_vel   = config["max_angular_velocity"].as<double>(0.0);
+    _kp_lin         = config["kp_lin"].as<double>(1.0);
+    _kp_ang         = config["kp_ang"].as<double>(1.0);
+    _reach_distance = config["reach_distance"].as<double>(0.2);
+}
 
 void Navigator::setWaypoint(double x, double y) {
     m_waypoints = std::queue<Point>();
@@ -113,7 +121,7 @@ bool Navigator::lineIntersectsCircle(const Point &A, const Point &B, const Point
 std::vector<size_t> Navigator::obstaclesOnWay(const Point &from, const Point &to) {
     std::vector<size_t> result;
     for (size_t i = 0; i < size_t(m_mapObstacles.size()); ++i) {
-        if (lineIntersectsCircle(from, to, m_mapObstacles.at(i), safe_distance)) {
+        if (lineIntersectsCircle(from, to, m_mapObstacles.at(i), _reach_distance)) {
             result.push_back(i);
         }
     }
@@ -122,7 +130,7 @@ std::vector<size_t> Navigator::obstaclesOnWay(const Point &from, const Point &to
 
 std::vector<Navigator::Point> Navigator::findConnectedCircles(const std::vector<size_t> &obstacles_on_way) {
     const size_t n = m_mapObstacles.size();
-    const double threshold = 4.0 * safe_distance * safe_distance;
+    const double threshold = 4.0 * _reach_distance * _reach_distance;
 
     std::vector<bool> visited(n, false);
     std::vector<Point> result;
@@ -169,8 +177,8 @@ Navigator::Point Navigator::minFarthestPoint(const Point& from, const Point& to,
 
     for (const auto &obs : obstacles) {
         // Две крайние точки этой окружности
-        Point P1 = obs + Point{na * safe_distance, nb * safe_distance};
-        Point P2 = obs - Point{na * safe_distance, nb * safe_distance};
+        Point P1 = obs + Point{na * _reach_distance, nb * _reach_distance};
+        Point P2 = obs - Point{na * _reach_distance, nb * _reach_distance};
 
         double f1 = a * P1.x + b * P1.y + c;
         double f2 = a * P2.x + b * P2.y + c;
@@ -212,7 +220,7 @@ void Navigator::moveToPoint() {
     //           << "; target x: " << m_targetPos.x
     //           << "; target y: " << m_targetPos.y << std::endl;
 
-    if (distance < robot_radius) {
+    if (distance < _reach_distance) {
         m_waypoints.pop();
         if (m_waypoints.empty()) {
             m_goalReached = true;
@@ -253,8 +261,8 @@ void Navigator::moveToPoint() {
     //     }
     // }
 
-    double lin_vel = std::min(max_linear, distance);
-    double ang_vel = std::clamp(kp_ang * angle_error, -max_angular, max_angular);
+    double lin_vel = std::min(_max_lin_vel, _kp_lin * distance);
+    double ang_vel = std::clamp(_kp_ang * angle_error, -_max_ang_vel, _max_ang_vel);
 
     if (std::abs(angle_error) > 20.0 / 180.0 * M_PI) {
         lin_vel = 0.0;

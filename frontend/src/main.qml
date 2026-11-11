@@ -31,6 +31,7 @@ Window {
     }
 
     // Карта
+    /*
     MapViewer {
         id: map_view
         width: parent.width - control_panel.width; height: parent.height
@@ -120,11 +121,83 @@ Window {
             }
         }
     }
+    */
+
+    LidarMapViewer {
+        id: lidar_map_viewer
+        width: parent.width - control_panel.width; height: parent.height
+        scanVisible: scan_visible_button.checked
+        trajectoryVisible: trajectory_radio_button.checked
+        waypointsMovement: waypoints_movement.checked
+        relative: true
+        ColumnLayout {
+            x: 12; y: 12
+            spacing: 10
+            // width: 500
+            C.RadioButton {
+                id: scan_visible_button
+                text: "Показывать скан"
+                font.pointSize: 10
+                Layout.preferredHeight: 20
+                checked: true
+            }
+            C.RadioButton {
+                id: trajectory_radio_button
+                text: "Показывать траекторию"
+                font.pointSize: 10
+                Layout.preferredHeight: 20
+                checked: true
+            }
+            C.RadioButton {
+                id: waypoints_movement
+                text: "Движение по плану"
+                font.pointSize: 10
+                Layout.preferredHeight: 20
+                checked: false
+            }
+            C.Button {
+                id: build_map_button
+                text: checked ? "Завершить сканирование" : "Начать сканирование"
+                Layout.preferredWidth: 150; Layout.preferredHeight: 30
+                checkable: true
+                Layout.alignment: Qt.AlignLeft
+                onToggled: {
+                    if (checked) {
+                        App.interface.startBuildingMap()
+                        lidar_map_viewer.clearTrajectory()
+                    } else {
+                        App.interface.finishBuildingMap()
+                    }
+                }
+            }
+            C.Button {
+                id: trajectory_clear_button
+                text: "Очистить траектории"
+                Layout.preferredWidth: 150; Layout.preferredHeight: 30
+                Layout.alignment: Qt.AlignLeft
+                onClicked: lidar_map_viewer.clearTrajectory()
+            }
+            C.Button {
+                id: relative_button
+                text: "Сменить ориентацию"
+                Layout.preferredWidth: 150; Layout.preferredHeight: 30
+                Layout.alignment: Qt.AlignLeft
+                onClicked: lidar_map_viewer.relative = !lidar_map_viewer.relative
+            }
+        }
+        WheelHandler {
+            onWheel: (event) => {
+                         lidar_map_viewer.zoom += event.angleDelta.y / 1200
+                     }
+        }
+    }
+
     C.Flickable {
         // visible: false
         id: control_panel
         clip: true
-        x: map_view.width
+        // x: map_view.width
+        x: lidar_map_viewer.width
         width: control_panel_layout.width + 24; height: parent.height
         contentWidth: width; contentHeight: control_panel_layout.height
         boundsMovement: Flickable.StopAtBounds
@@ -184,15 +257,15 @@ Window {
             }
             C.Joystick {
                 id: joystick_1
-                toX: 1000; toY: 1000
-                startX: 500; startY: 0
+                toX: 1024; toY: 1024
+                startX: 512; startY: 0
                 Layout.alignment: Qt.AlignHCenter
             }
             C.Joystick {
                 visible: false
                 id: joystick_2
-                toX: 1000; toY: 1000
-                startX: 500; startY: 500
+                toX: 1024; toY: 1024
+                startX: 512; startY: 512
                 Layout.alignment: Qt.AlignHCenter
             }
             C.ButtonJoystick {
@@ -209,22 +282,31 @@ Window {
                     // lidar_map_viewer.clearWaypoints()
                 }
             }
-            CPText { text: "линейная скорость, м/с" }
+            CPText { text: "линейная скорость, %" }
             C.Volume {
                 id: lin_vel
-                min: 0; max: 0.15
-                decimals: 2
-                value: 0.12
+                min: 0; max: 100
+                decimals: 0
+                value: 70
                 Layout.fillWidth: true
             }
-            CPText { text: "угловая скорость, °/с" }
+            CPText { text: "угловая скорость, %" }
             C.Volume {
                 id: ang_vel
-                min: 0; max: 80
+                min: 0; max: 100
                 decimals: 0
-                value: 40
+                value: 50
                 Layout.fillWidth: true
                 Layout.bottomMargin: 10
+            }
+            RowLayout {
+                spacing: 10
+                CPText { text: "yaw weight:" }
+                C.Slider {
+                    from: 0; to: 100
+                    Layout.fillWidth: true
+                    onMoved: App.interface.setImuWeight(value / 100);
+                }
             }
         }
     }
@@ -250,25 +332,41 @@ Window {
         checkable: true
         onToggled: App.interface.setMowingEnabled(checked)
     }
+
     Timer {
-        interval: 100
+        interval: 500
         running: true
         repeat: true
         onTriggered: {
+            const max_lin_vel = 0.15 //  м/с
+            const max_ang_vel = 80   //  °/с
+
+            var _lin_vel = max_lin_vel / 100.0 * lin_vel.value
+            var _ang_vel = max_ang_vel / 180.0 * Math.PI / 100.0 * ang_vel.value
+
             if (joystick_1.active) {
-                App.interface.setMoveParams(joystick_1.valueX, joystick_1.valueY, joystick_2.valueX, joystick_2.valueY);
-            } else if (joystick_2.active) {
-                App.interface.setMoveParams(joystick_1.valueX, joystick_1.valueY, joystick_2.valueX, joystick_2.valueY);
-            } else if (buttonJoystick.topStatePressed) {
-                App.interface.setMotorSpeeds(lin_vel.value, 0)
-            } else if (buttonJoystick.bottomStatePressed) {
-                App.interface.setMotorSpeeds(-lin_vel.value, 0)
-            } else if (buttonJoystick.leftStatePressed) {
-                App.interface.setMotorSpeeds(0, ang_vel.value / 180.0 * Math.PI)
-            } else if (buttonJoystick.rightStatePressed) {
-                App.interface.setMotorSpeeds(0, -ang_vel.value / 180.0 * Math.PI)
+                App.interface.setMoveParams(512, joystick_1.valueY, joystick_1.valueX, 512);
+                // } else if (joystick_2.active) {
+                //     App.interface.setMoveParams(joystick_1.valueX, joystick_1.valueY, joystick_2.valueX, joystick_2.valueY);
+            } else if (buttonJoystick.topButton.pressed || buttonJoystick.topButton.down) {
+                // console.log("top pressed")
+                App.interface.setMotorSpeeds(_lin_vel, 0)
+                App.interface.setMoveParams(512, 1024.0 / 100.0 * lin_vel.value, 512, 512);
+            } else if (buttonJoystick.bottomButton.pressed || buttonJoystick.bottomButton.down) {
+                // console.log("bottom pressed")
+                App.interface.setMotorSpeeds(-_lin_vel, 0)
+                //
+            } else if (buttonJoystick.leftButton.pressed || buttonJoystick.leftButton.down) {
+                // console.log("left pressed")
+                App.interface.setMotorSpeeds(0, _ang_vel)
+                App.interface.setMoveParams(512.0 - 512.0 / 100.0 * ang_vel.value, 0, 512, 512);
+            } else if (buttonJoystick.rightButton.pressed || buttonJoystick.rightButton.down) {
+                // console.log("right pressed")
+                App.interface.setMotorSpeeds(0, -_ang_vel)
+                App.interface.setMoveParams(512.0 + 512.0 / 100.0 * ang_vel.value, 0, 512, 512);
             } else {
                 App.interface.setMotorSpeeds(0, 0)
+                App.interface.setMoveParams(512.0, 0, 512, 512);
                 // console.log("stop")
             }
         }
@@ -286,17 +384,53 @@ Window {
             velocity_y.setValue(vy)
             velocity_yaw.setValue(v_yaw * 180 / Math.PI)
         }
-        function onGlobalPositionChanged(latitude: real, longitude: real, altitude: int) {
-            marker.coordinate = QtPositioning.coordinate(latitude, longitude, altitude)
-            // var coord = map_view.map.fromCoordinate(QtPositioning.coordinate(latitude, longitude, altitude))
-            // marker_2.x = coord.x / Screen.devicePixelRatio - 6
-            // marker_2.y = coord.y / Screen.devicePixelRatio - 6
+        // function onGlobalPositionChanged(latitude: real, longitude: real, altitude: int) {
+        //     marker.coordinate = QtPositioning.coordinate(latitude, longitude, altitude)
+        //     // var coord = map_view.map.fromCoordinate(QtPositioning.coordinate(latitude, longitude, altitude))
+        //     // marker_2.x = coord.x / Screen.devicePixelRatio - 6
+        //     // marker_2.y = coord.y / Screen.devicePixelRatio - 6
+        // }
+        // function onYawChanged(yaw: real) {
+        //     marker.rotation = yaw
+        // }
+    }
+    Connections {
+        target: App
+        ignoreUnknownSignals: true
+        function onKeyPressed(key: int) {
+            switch(key) {
+            case 17:
+                buttonJoystick.topButton.down = true
+                break
+            case 30:
+                buttonJoystick.leftButton.down = true
+                break
+            case 31:
+                buttonJoystick.bottomButton.down = true
+                break
+            case 32:
+                buttonJoystick.rightButton.down = true
+                break
+            }
         }
-        function onYawChanged(yaw: real) {
-            marker.rotation = yaw
+        function onKeyReleased(key: int) {
+            switch(key) {
+            case 17:
+                buttonJoystick.topButton.down = false
+                break
+            case 30:
+                buttonJoystick.leftButton.down = false
+                break
+            case 31:
+                buttonJoystick.bottomButton.down = false
+                break
+            case 32:
+                buttonJoystick.rightButton.down = false
+                break
+            }
         }
     }
-
+    /*
     Window {
         title: "grid map viewer"
         width: 800; height: 600
@@ -371,11 +505,12 @@ Window {
             }
         }
     }
+*/
     Window {
         title: "lidar viewer"
         width: 800
         height: 600
-        visible: true
+        visible: false
         transientParent: null
         LidarViewer {
             id: lidar_viewer

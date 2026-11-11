@@ -19,19 +19,27 @@ uint32_t timeout = 0;
 
 // функция для обработки значений джойстиков
 void moveParamsCallback(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y) {
-  float throttle = stick_1_y * 90.f / 1000.f + 90.f;
-  float rotate = stick_1_x * 180.f / 1000.f;
-  float v_raw = (throttle - 90.f) / 90.f;
-  float turn_raw = (rotate - 90.f) / 90.f;
-  float L = v_raw * (1.f + turn_raw);
-  float R = v_raw * (1.f - turn_raw);
-  float factor = max(1, max(abs(L), abs(R)));
-  L = L / factor;
-  R = R / factor;
+  Serial.print(stick_1_x);
+  Serial.print(" ");
+  Serial.println(stick_1_y);
+  Serial.print(" ");
+  Serial.println(stick_2_x);
+  Serial.print(" ");
+  Serial.println(stick_2_y);
+
+  // float throttle = stick_1_y * 90.f / 1000.f + 90.f;
+  // float rotate = stick_1_x * 180.f / 1000.f;
+  // float v_raw = (throttle - 90.f) / 90.f;
+  // float turn_raw = (rotate - 90.f) / 90.f;
+  // float L = v_raw * (1.f + turn_raw);
+  // float R = v_raw * (1.f - turn_raw);
+  // float factor = max(1, max(abs(L), abs(R)));
+  // L = L / factor;
+  // R = R / factor;
   // left_motor.write((L + 1.f) * 90);
   // right_motor.write(180 - (R + 1.f) * 90);
 
-  timeout = millis();
+  // timeout = millis();
 }
 
 void motorSpeedsCallback(int16_t left_motor_val, int16_t right_motor_val) {

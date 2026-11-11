@@ -3,7 +3,7 @@
 
 #if QT_CONFIG(process)
 
-const QString FirmwareLoader::sketch_path = AppGlobal::tempLocation() + "firmware/firmware.ino";
+// const QString FirmwareLoader::sketch_path = AppGlobal::tempLocation() + "firmware/firmware.ino";
 const QString FirmwareLoader::arduino_cli_path = "arduino-cli";
 
 FirmwareLoader::FirmwareLoader() : m_state(Inactive), m_process(new QProcess(this))
@@ -48,30 +48,6 @@ FirmwareLoader::FirmwareLoader() : m_state(Inactive), m_process(new QProcess(thi
     });
 }
 
-void FirmwareLoader::loadFirmware(const QByteArray &code, const QString &portName,
-                                  const QString &fqbn, const QString &board_options)
-{
-    const QString location = AppGlobal::tempLocation() + "firmware/";
-    if (!QDir(location).exists()) QDir().mkpath(location);
-    QFile sketch(location + "firmware.ino");
-    if (!sketch.open(QIODevice::WriteOnly)) {
-        qDebug() << "Не удалось записать скетч";
-        return;
-    }
-    sketch.write(code);
-    sketch.close();
-    m_state = Compile;
-    m_portName = portName;
-    m_fqbn = fqbn;
-    m_boardOptions = board_options;
-    QStringList args {
-        "compile",
-        "--fqbn", fqbn,
-        "--board-options", board_options,
-        sketch.fileName(), "--build-path", location + "build"//, "-v"
-    };
-    m_process->start("arduino-cli", args);
-}
 
 #else
 

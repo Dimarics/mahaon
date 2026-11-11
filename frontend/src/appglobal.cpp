@@ -1,9 +1,11 @@
 #include "appglobal.h"
-#include "serialportinterface.h"
 #include "websocketinterface.h"
+#include <QGuiApplication>
+#include <QKeyEvent>
 
 AppGlobal::AppGlobal() : m_interface(new WebSocketInterface(this)) {
     // new SerialPortInterface();
+    qApp->installEventFilter(this);
 }
 
 void AppGlobal::setInterface(QObject *interface)
@@ -64,4 +66,24 @@ QVariant AppGlobal::readJSON(const QString &path) const
 QVariant AppGlobal::readJSON(const QUrl &url) const
 {
     return readJSON(url.toLocalFile());
+}
+
+bool AppGlobal::eventFilter(QObject *target, QEvent *event) {
+    if (target == qApp->focusObject() &&
+            (target->metaObject()->className() == QStringLiteral("QQuickRootItem") ||
+             target->metaObject()->className() == QStringLiteral("QQuickWindowQmlImpl"))) {
+        switch (event->type()) {
+        case QEvent::KeyPress:
+            if (static_cast<QKeyEvent*>(event)->isAutoRepeat()) return false;
+            emit keyPressed(static_cast<QKeyEvent*>(event)->nativeScanCode());
+            break;
+        case QEvent::KeyRelease:
+            if (static_cast<QKeyEvent*>(event)->isAutoRepeat()) return false;
+            emit keyReleased(static_cast<QKeyEvent*>(event)->nativeScanCode());
+            break;
+        default:
+            break;
+        }
+    }
+    return false;
 }

@@ -68,7 +68,7 @@ void WebSocketInterface::sendMessage(const QByteArray &msg) {
 void WebSocketInterface::setMoveParams(uint16_t stick_1_x, uint16_t stick_1_y, uint16_t stick_2_x, uint16_t stick_2_y) {
     // qDebug() << stick_1_x << stick_1_y << stick_2_x << stick_2_y;
     QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
+    QByteArrayWriter stream(data);
     stream << MSG_ID_SET_MOVE_PARAMS << stick_1_x << stick_1_y << stick_2_x << stick_2_y;
     sendMessage(data);
 }
@@ -121,6 +121,13 @@ void WebSocketInterface::setMowingEnabled(bool enable) {
     } else {
         sendMessage(QByteArray(1, MSG_ID_MOWING_DISABLE));
     }
+}
+
+void WebSocketInterface::setImuWeight(float weight) {
+    QByteArray data;
+    QByteArrayWriter writer(data);
+    writer << MSG_ID_SET_IMU_WEIGHT << weight;
+    sendMessage(data);
 }
 
 void WebSocketInterface::connectDevice() {
@@ -229,6 +236,12 @@ void WebSocketInterface::messageHandler(const QByteArray &msg) {
         float x, y, yaw;
         stream >> x >> y >> yaw;
         emit encPositionChanged(x, y, yaw);
+        break;
+    }
+    case MSG_ID_LIDAR_COVARIANCE_CHANGED: {
+        float a, b, phi;
+        stream >> a >> b >> phi;
+        emit lidarCovarianceChanged(a, b, phi);
         break;
     }
     default:
