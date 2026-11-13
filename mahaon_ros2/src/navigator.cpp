@@ -2,23 +2,21 @@
 #include "mahaon/app_config.h"
 #include <algorithm>
 #include <cmath>
-#include <iostream>
+// #include <iostream>
 
 Navigator::Navigator()
     : m_goalReached(true)
     , m_pos(0, 0)
     , m_laserScan(nullptr)
 {
-    YAML::Node config = app_config::params["vehicle"];
-    if (!config) {
-        std::cout << "[navigator] конфигурация vehicle не найдена" << std::endl;
-        return;
-    }
-    _max_lin_vel   = config["max_linear_velocity"].as<double>(0.0);
-    _max_ang_vel   = config["max_angular_velocity"].as<double>(0.0);
-    _kp_lin         = config["kp_lin"].as<double>(1.0);
-    _kp_ang         = config["kp_ang"].as<double>(1.0);
-    _reach_distance = config["reach_distance"].as<double>(0.2);
+    YAML::Node vehicle_config = app_config::params["vehicle"];
+    YAML::Node nav_config = app_config::params["vehicle"];
+    _max_lin_vel      = vehicle_config["max_linear_velocity"].as<double>(0.0);
+    _max_ang_vel      = vehicle_config["max_angular_velocity"].as<double>(0.0) / 180.0 * M_PI;
+    _kp_lin           = nav_config["kp_lin"].as<double>(1.0);
+    _kp_ang           = nav_config["kp_ang"].as<double>(1.0);
+    _inflation_radius = nav_config["inflation_radius"].as<double>(0.30);
+    _reach_distance   = nav_config["reach_distance"].as<double>(0.20);
 }
 
 void Navigator::setWaypoint(double x, double y) {
@@ -233,6 +231,17 @@ void Navigator::moveToPoint() {
     double angle_error = angleDistance(m_pos.yaw, target_angle);
 
     // проверка на столкновения
+    if (m_laserScan) {
+        for (auto &range : m_laserScan->ranges) {
+            if (range > m_laserScan->range_min && range < m_laserScan->range_max && range < _inflation_radius) {
+                if (std::chrono::duration_cast<std::chrono::milliseconds>
+                        (std::chrono::steady_clock::now() - m_timestamp).count() > 800) {
+                    m_timestamp = std::chrono::steady_clock::now();
+                    m_planUpdateRequest(m_waypoints.back());
+                }
+            }
+        }
+    }
     // if (m_laserScan) {
     //     for (size_t i = 0; i < m_laserScan->ranges.size(); ++i) {
     //         if (m_laserScan->ranges.at(i) > 0 && m_laserScan->ranges.at(i) <= 0.3) {
@@ -261,7 +270,7 @@ void Navigator::moveToPoint() {
     //     }
     // }
 
-    double lin_vel = std::min(_max_lin_vel, _kp_lin * distance);
+    double lin_vel = std::min(_kp_lin * distance, _max_lin_vel);
     double ang_vel = std::clamp(_kp_ang * angle_error, -_max_ang_vel, _max_ang_vel);
 
     if (std::abs(angle_error) > 20.0 / 180.0 * M_PI) {
@@ -269,10 +278,4 @@ void Navigator::moveToPoint() {
     }
 
     m_twistChangedCallback(lin_vel, ang_vel);
-
-    if (std::chrono::duration_cast<std::chrono::milliseconds>
-            (std::chrono::steady_clock::now() - m_timestamp).count() > 800) {
-        m_timestamp = std::chrono::steady_clock::now();
-        m_planUpdateRequest(m_waypoints.back());
-    }
 }

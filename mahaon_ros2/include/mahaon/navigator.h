@@ -52,6 +52,7 @@ private:
     double _max_ang_vel;
     double _kp_lin;
     double _kp_ang;
+    double _inflation_radius;
     double _reach_distance;
 
     bool m_goalReached;

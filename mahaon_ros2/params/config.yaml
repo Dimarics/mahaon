@@ -5,9 +5,12 @@ vehicle:
   max_linear_velocity: 0.15
   max_angular_velocity: 80
   k_pwm: 68.27
+
+navigation:
   kp_lin: 1.0
   kp_ang: 1.2
-  reach_distance: 0.2
+  reach_distance: 0.20
+  inflation_radius: 0.30
 
 lidar_driver:
   port: /dev/ttyAMA2

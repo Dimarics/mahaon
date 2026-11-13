@@ -83,8 +83,8 @@ void LidarViewer::paint(QPainter *painter)
 
     //
     painter->rotate(-90);
-    painter->setBrush(Qt::green);
     painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::green);
     // painter->drawPoints(m_scanPoints);
 
     for (QPointF &scan_point : m_scanPoints) {
