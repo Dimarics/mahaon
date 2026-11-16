@@ -29,28 +29,27 @@ MainWindow::MainWindow() : m_pos{NAN, NAN} {
     m_timer->setInterval(30);
     m_timer->callOnTimeout(this, [this]() {
         const double speed = 0.15;
-        const VecF u = (m_goal - m_pos).norm();
-        double min_cost = 1.0;
+        VecF u = (m_goal - m_pos).norm();
+        double k_decel_min = 1.0;
         for (auto &obstacle : m_obstacles) {
-            const VecF delta = (obstacle - m_pos) / _scale;
-            const double dist_sq = delta.x * delta.x + delta.y * delta.y;
+            VecF delta = (obstacle - m_pos) / _scale;
+            double dist_sq = delta.x * delta.x + delta.y * delta.y;
             if (dist_sq > _r_inflation * _r_inflation) continue;
-            const double dist = std::sqrt(dist_sq);
-            const VecF norm = delta / dist;
-            const double c = norm.dot(u);
+            double dist = std::sqrt(dist_sq);
+            VecF norm = delta / dist;
+            double c = norm.dot(u);
             if (c > 0 && dist < _r_inscribed) {
-                min_cost = 0.0;
+                k_decel_min = 0.0;
                 break;
             }
-            const double k_w = 0.8;
-            const double w_dir = k_w + (1.0 - k_w) * (1.0 + c) / 2.0;
-
+            double k_w = 0.8;
+            double w_dir = k_w + (1.0 - k_w) * (1.0 + c) / 2.0;
             double cost = 1.0 - std::clamp(std::exp(-_cost_scaling_factor * (dist - _r_inscribed)), 0.0, 1.0);
-            // double _cost = c > 0 ? cost : 1.0 - w_dir * (1.0 - cost);
-            double _cost = 1.0 - w_dir * (1.0 - cost);
-            min_cost = std::min(_cost, min_cost);
+            // double decel = c > 0 ? cost : 1.0 - w_dir * (1.0 - cost);
+            double k_decel = 1.0 - w_dir * (1.0 - cost);
+            k_decel_min = std::min(k_decel, k_decel_min);
         }
-        m_pos = m_pos + u * speed * _scale * double(m_timer->interval()) / 1000.0 * min_cost;
+        m_pos = m_pos + u * speed * _scale * double(m_timer->interval()) / 1000.0 * k_decel_min;
         repaint();
     });
 }

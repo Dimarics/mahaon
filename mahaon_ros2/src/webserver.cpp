@@ -4,6 +4,7 @@
 WebServer::WebServer(boost::asio::io_context &io_context, uint16_t port)
     : m_ioContext(io_context)
     , m_acceptor(nullptr)
+    , m_messageReceivedCallback([](std::vector<uint8_t>&&){})
 {
     net::co_spawn(io_context, do_listen(tcp::endpoint(tcp::v4(), port)), net::detached);
 }

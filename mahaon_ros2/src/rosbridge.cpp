@@ -15,6 +15,12 @@ ROSbridge::ROSbridge(boost::asio::io_context &io_context)
     , m_tfBuffer(node()->get_clock())
     , m_tfListener(m_tfBuffer)
     , m_tfPollTimer(io_context, std::chrono::milliseconds(100))
+    , m_scanReceivedCallback([](const sensor_msgs::msg::LaserScan::SharedPtr){})
+    , m_laserOdomChangedCallback([](double, double, double, double, double, double, double){})
+    , m_positionChangedCallback([](double, double, double){})
+    , m_mapUpdatedCallback([](const nav_msgs::msg::OccupancyGrid::SharedPtr map){})
+    , m_cmdVelCallback([](double, double){})
+    , m_planChangedCallback([](const std::vector<float>&){})
 {
     m_rosThread = std::thread([this] {
         auto sub_scan = node()->create_subscription<sensor_msgs::msg::LaserScan>

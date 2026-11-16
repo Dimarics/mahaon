@@ -5,6 +5,7 @@
 
 SerialPort::SerialPort(boost::asio::io_context &io_context, const std::string &dev)
     : m_isWriting(false), m_serialPort(io_context, dev)
+    , m_dataReceivedCallback([](const std::vector<uint8_t> &data){})
 {
     using asio_serial = boost::asio::serial_port;
     m_serialPort.set_option(asio_serial::baud_rate(9600));

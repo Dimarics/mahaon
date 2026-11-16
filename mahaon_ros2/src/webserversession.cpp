@@ -3,7 +3,9 @@
 
 WebServerSession::WebServerSession(tcp::socket&& socket)
     : m_isWriting(false)
-    , m_stream(std::move(socket)) { m_stream.text(false); }
+    , m_stream(std::move(socket))
+    , m_onCloseCallback([](const std::shared_ptr<WebServerSession>&){})
+    , m_messageReceivedCallback([](std::vector<uint8_t>&&){}) { m_stream.text(false); }
 
 void WebServerSession::run() {
     net::co_spawn(m_stream.get_executor(), do_accept(), net::detached);

@@ -86,30 +86,22 @@ LidarDriver::LidarDriver(boost::asio::io_context &io_context)
 
         int mean_size = 0;
         {
-            /*
+            // вычисление среднего медианного количества точек в скане
             std::vector<int> scan_sizes(50, 0);
-            for (int i = 0; m_running && ydlidar::os_isOk() && i < scan_sizes.size(); ++i) {
+            size_t i = 0;
+            std::cout << "[lidar_driver] идёт калибровка лидара..." << std::endl;
+            while (m_running && ydlidar::os_isOk() && i < scan_sizes.size()) {
                 LaserScan scan;
                 if (!lidar.doProcessSimple(scan)) {
                     std::cout << "[lidar_driver] не удалось получить данные лидара" << std::endl;
                     continue;
                 }
                 scan_sizes[i] = scan.size;
+                ++i;
             }
-            */
-
-            // вычисление среднего количества точек в скане
-            const int mean_count = 50;
-            int sum_size = 0;
-            for (int i = 0; m_running && ydlidar::os_isOk() && i < mean_count; ++i) {
-                LaserScan scan;
-                if (!lidar.doProcessSimple(scan)) {
-                    std::cout << "[lidar_driver] не удалось получить данные лидара" << std::endl;
-                    continue;
-                }
-                sum_size += scan.size;
-            }
-            mean_size = sum_size / mean_count;
+            mean_size = (scan_sizes.size() % 2 == 0) ?
+                        (scan_sizes[scan_sizes.size() / 2] + scan_sizes[scan_sizes.size() / 2 - 1]) / 2 :
+                         scan_sizes[scan_sizes.size() / 2];
         }
         std::cout << "[lidar_driver] среднее количество точек в скане: " << mean_size << std::endl;
 
@@ -148,7 +140,10 @@ LidarDriver::LidarDriver(boost::asio::io_context &io_context)
                 }
             }
             boost::asio::post(io_context, [resampled_scan = std::move(resampled_scan), this] {
+                // static std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
                 m_newResampledScanCallback(resampled_scan);
+                // std::cout << "[lidar_driver] " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) << std::endl;
+                // t = std::chrono::steady_clock::now();
             });
         }
         lidar.turnOff();

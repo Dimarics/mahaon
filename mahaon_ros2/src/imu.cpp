@@ -4,7 +4,11 @@
 #include <tf2/LinearMath/Matrix3x3.hpp>
 #include <iostream>
 
-IMU::IMU(boost::asio::io_context &io_context) : m_running(true) {
+IMU::IMU(boost::asio::io_context &io_context)
+    : m_running(true)
+    , m_rawChangedCallback([](double, double, double, double, double, double){})
+    , m_rotationChangedCallback([](double, double, double){})
+{
     // m_timer.async_wait(std::bind_front(&IMU::poll, this));
     return;
     m_thread = std::thread([this, &io_context] {

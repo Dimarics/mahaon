@@ -7,6 +7,7 @@ StateEstimator::StateEstimator(boost::asio::io_context &io_context)
     , m_imuWeight(0.f)
     , m_timer(io_context, std::chrono::milliseconds(20))
     , m_imu(io_context)
+    , m_positionChangedCallback([](double, double, double){})
 {
     m_timer.async_wait(std::bind_front(&StateEstimator::stateEstimate, this));
 

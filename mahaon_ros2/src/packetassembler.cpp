@@ -7,7 +7,9 @@ PacketAssembler::PacketAssembler()
     , m_functionCodeRead(0)
     , m_functionCode(0)
     , m_dataSizeRead(0)
-    , m_dataSize(0) { }
+    , m_dataSize(0)
+    , m_packetAssembledCallback([](uint8_t, const std::vector<uint8_t>&){})
+{ }
 
 void PacketAssembler::addData(const std::vector<uint8_t> &data) {
     // std::cout << "addData" << std::endl;

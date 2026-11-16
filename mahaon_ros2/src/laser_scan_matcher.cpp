@@ -3,6 +3,8 @@
 
 LaserScanMatcher::LaserScanMatcher()
     : m_initialized(false)
+    , m_odomChangedCallback([](const rclcpp::Time&, double, double, double){})
+    , m_covarianceEllipseChangedCallback([](double, double, double){})
 {
     m_sm_params.max_angular_correction_deg = 45.0;
     m_sm_params.max_linear_correction = 0.50;
@@ -44,7 +46,9 @@ void LaserScanMatcher::newScan(const std::shared_ptr<LaserScan> &scan) {
     } else {
         LDP curr_ldp_scan;
         laserScanToLDP(scan, curr_ldp_scan);
+        // auto t = std::chrono::steady_clock::now();
         processScan(curr_ldp_scan, rclcpp::Time(scan->stamp));
+        // std::cout << "[laser_scan_matcher] " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t) << std::endl;
     }
 }
 

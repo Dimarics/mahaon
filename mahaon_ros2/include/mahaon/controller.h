@@ -55,15 +55,10 @@ public:
         double yaw = 0;
     };
     Controller(boost::asio::io_context &io_context);
-    void setTwist(double lin_vel, double ang_vel);
     void setMotorPwm(int16_t left_motor, int16_t right_motor);
     void shutdown();
 
 private:
-    double _wheel_base;
-    double _wheel_d;
-    double _k_pwm;
-
     Position m_pos;
     boost::asio::io_context m_ioContext;
     ROSbridge m_rosBridge;
@@ -75,7 +70,6 @@ private:
     Navigator m_navigator;
     SlamLauncher m_slamLauncher;
     StateEstimator m_stateEstimator;
-    void moveToPoint();
 };
 
 #endif // CONTROLLER_H

@@ -1,5 +1,4 @@
 #include "mahaon/controller.h"
-#include "mahaon/app_config.h"
 #include "mahaon/buf_datastream.h"
 #include <boost/process/v2/stdio.hpp>
 
@@ -11,16 +10,6 @@ Controller::Controller(boost::asio::io_context &io_context)
     , m_lidarDriver(io_context)
     , m_stateEstimator(io_context)
 {
-    // config
-    YAML::Node config = app_config::params["vehicle"];
-    if (!config) {
-        std::cout << "[controller] конфигурация vehicle не найдена" << std::endl;
-        return;
-    }
-    _wheel_base = config["wheel_base"].as<double>(1.0);
-    _wheel_d    = config["wheel_d"].as<double>(1.0);
-    _k_pwm      = config["k_pwm"].as<double>(1.0);
-
     // ros bridge
     m_rosBridge.onScanReceived([this](const sensor_msgs::msg::LaserScan::SharedPtr laser_scan) {
         std::vector<uint8_t> buffer;
@@ -42,10 +31,6 @@ Controller::Controller(boost::asio::io_context &io_context)
         m_pos.y = y;
         // m_pos.yaw = yaw;
         m_webServer.send(MSG_ID_LOCAL_POSITION_CHANGED, float(x), float(y), float(yaw));
-        // std::cout << "x: " << x << " y: " << y << " yaw: " << yaw << std::endl;
-        // if (!m_goalReached) {
-        //     moveToPoint();
-        // }
         m_navigator.updatePos(x, y, yaw);
     });
     m_rosBridge.onMapUpdated([this](const nav_msgs::msg::OccupancyGrid::SharedPtr map) {
@@ -106,7 +91,7 @@ Controller::Controller(boost::asio::io_context &io_context)
             float lin_vel, ang_vel;
             reader >> lin_vel >> ang_vel;
             // std::cout << "[сontroller] lin_vel: " << lin_vel << ", ang_vel: " << ang_vel << std::endl;
-            if (m_navigator.goalReached()) setTwist(lin_vel, ang_vel);
+            if (m_navigator.goalReached()) m_navigator.setTwist(lin_vel, ang_vel);
             break;
         }
         case MSG_ID_SET_WAYPOINT: {
@@ -227,7 +212,7 @@ Controller::Controller(boost::asio::io_context &io_context)
     });
 
     // навигатор
-    m_navigator.onTwistChanged(std::bind_front(&Controller::setTwist, this));
+    m_navigator.onPwmChanged(std::bind_front(&Controller::setMotorPwm, this));
     m_navigator.onWaypointsChanged([this](const std::vector<Navigator::Point> &waypoints) {
         std::vector<uint8_t> buffer;
         BufWriter writer(buffer);
@@ -241,16 +226,6 @@ Controller::Controller(boost::asio::io_context &io_context)
 
     // m_state estimator
     m_stateEstimator.onPositionChanged(std::bind_front(&ROSbridge::publishTransform, &m_rosBridge));
-}
-
-void Controller::setTwist(double lin_vel, double ang_vel) {
-    const double left_speed  = lin_vel - ang_vel * _wheel_base / 2.0;
-    const double right_speed = lin_vel + ang_vel * _wheel_base / 2.0;
-    const double to_rpm = 60.0 / (M_PI * _wheel_d);
-    const int16_t left_motor = left_speed * to_rpm * _k_pwm;
-    const int16_t right_motor = right_speed * to_rpm * _k_pwm;
-    // std::cout << left_motor << " " << right_motor << std::endl;
-    setMotorPwm(left_motor, right_motor);
 }
 
 void Controller::setMotorPwm(int16_t left_motor, int16_t right_motor) {
